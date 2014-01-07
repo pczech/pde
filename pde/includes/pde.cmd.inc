@@ -26,5 +26,9 @@ function pde_cmd_entity_create($type, $data) {
 
   $data = drupal_json_decode($data);
 
+  // entity_create requires entity type defined by hook_entity_info().
+  // The schema to store entity in db defined by hook_schema() not required
+  // now.
   $entity = entity_create($type, $data);
+  dpm($entity);
 }

@@ -4,3 +4,37 @@
  * @file
  * Install hooks for pde_02 module.
  */
+
+module_load_include('inc', 'pde', 'includes/tools');
+
+/**
+ * Implements hook_schema().
+ */
+function pde_02_schema() {
+  pde_trace_funct();
+
+  $schema['ingredient'] = array(
+    'description' => 'Hypothetical ingredient table',
+    'fields' => array(
+      'iid' => array(
+        'description' => 'The primary identifier for an ingredient.',
+        'type' => 'serial',
+        'not null' => TRUE,
+      ),
+      'name' => array(
+        'description' => 'Name of the ingredient.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+    ),
+    'primary key' => array(
+      'iid',
+    ),
+    'unique keys' => array(
+      'name' => array('name'),
+    ),
+  );
+
+  // return $schema;
+}

@@ -1,5 +1,5 @@
 name = User Interface
 description = Menu to test Programming Drupal Entities examples.
 package = Programming Drupal Entities
-#dependencies[] = entity
+dependencies[] = pde
 core = 7.x

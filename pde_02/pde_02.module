@@ -4,3 +4,34 @@
  * @file
  * Contains example code demonstrating topics covered in Chapter 2.
  */
+
+
+module_load_include('inc', 'pde', 'includes/tools');
+
+
+/**
+ * Implements hook_entity_info().
+ */
+function pde_02_entity_info() {
+  pde_trace_funct();
+
+  $entity = array();
+  $entity['ingredient'] = array(
+    /*
+    'label' => t('Ingredient'),
+    // Entity API parameter. See hook_entity_info in entity/tests/
+    // entity_test.module and entity/README.txt.
+    'entity class' => 'Entity',
+    // EntityAPIController is a class of Entity API
+    'controller class' => 'EntityAPIController',
+    'base table' => 'ingredient',
+    'entity keys' => array(
+      'id' => 'iid',
+      'label' => 'name',
+    ),
+    'fieldable' => FALSE,
+    */
+  );
+
+  return $entity;
+}
