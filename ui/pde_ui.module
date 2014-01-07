@@ -1,0 +1,106 @@
+<?php
+
+/**
+ * @file
+ * User Interface to test PDE entity examples.
+ */
+
+module_load_include('inc', 'pde', 'includes/tools');
+module_load_include('inc', 'pde', 'includes/pde.cmd');
+
+
+// @ignore sniffer_commenting_inlinecomment_spacingafter:file
+
+/**
+ * Implements hook_menu().
+ */
+function pde_ui_menu() {
+  pde_trace_funct();
+
+  $items = array();
+
+  $items['pde'] = array(
+    'title' => 'Entity',
+    'page callback' => 'pde_ui_pcb_info',
+    'access callback' => TRUE,
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  $items['pde/create'] = array(
+    'title' => 'Create entity',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('pde_ui_entity_create'),
+    'access callback' => TRUE,
+    'type' => MENU_NORMAL_ITEM,
+  );
+
+  return $items;
+}
+
+
+/**
+ * Show info page for Entity menu.
+ */
+function pde_ui_pcb_info() {
+  pde_trace_funct();
+
+  return t('Select entity action from menu.');
+}
+
+
+/**
+ * Form constructor.
+ */
+function pde_ui_entity_create($form, &$form_state) {
+  pde_trace_funct();
+
+  $entities = array_keys(entity_get_info());
+
+  $form = array();
+
+  $form['entity_type'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Entity type'),
+    '#description' => t('Enter entity type. The following types are available: @entities',
+        array('@entities' => implode(', ', $entities))),
+  );
+
+  $form['entity_data'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Entity data'),
+    '#description' => t('Enter entity data in JSON format, for example: {"name": "Salt"}'),
+  );
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Create'),
+  );
+
+  return $form;
+}
+
+
+/**
+ * From validate handler.
+ */
+function pde_ui_entity_create_validate($form, $form_state) {
+  if (drupal_json_decode($form_state['values']['entity_data']) == NULL) {
+    form_set_error('entity_data', t('The JSON data cannot be decoded.'));
+  }
+}
+
+
+/**
+ * Form submit handler.
+ */
+function pde_ui_entity_create_submit($form, &$form_state) {
+  pde_trace_funct();
+  // dpm($form_state);
+
+  $type = $form_state['values']['entity_type'];
+  $data = $form_state['values']['entity_data'];
+  pde_cmd_entity_create($type, $data);
+
+  drupal_set_message(t('Entity created'));
+  $form_state['redirect'] = 'pde';
+}
