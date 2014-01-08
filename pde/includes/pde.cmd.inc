@@ -37,7 +37,7 @@ function pde_cmd_print_entity($entity, $type = NULL) {
   $rows = array();
   // It is possible to use foreach ($wrapper ... ) to iterate properties,
   // because it implements IteratorAggregate interface. The individual
-  // properties can be accessed by name, e.g. $wrapper->name.
+  // properties can be accessed by name, for example $wrapper->name.
   foreach ($wrapper as $key => $property) {
     if ($property instanceof EntityValueWrapper) {
       $rows[$key] = $property->value();
@@ -100,4 +100,24 @@ function pde_cmd_entity_read($type, $id) {
   // dpm($wrapper->getPropertyInfo());
 
   return pde_cmd_print_entity($wrapper);
+}
+
+
+/**
+ * UPDATE an entity and display its properties.
+ *
+ * @param $type
+ *   Entity type.
+ * @param $id
+ *   Entity ID.
+ * @param $data
+ *   Either JSON string, an object or an associative array.
+ */
+function pde_cmd_entity_update($type, $id, $data) {
+  pde_trace_funct();
+  $wrapper = entity_metadata_wrapper($type, $id);
+
+  $data = drupal_json_decode($data);
+  dpm($wrapper);
+  dpm($data);
 }
