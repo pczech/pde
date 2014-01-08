@@ -25,6 +25,8 @@ entity wrapper class
 --------------------
 getIdentifier
 getPropertyInfo
+label
 save
+raw
 type
 value

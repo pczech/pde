@@ -39,7 +39,6 @@ function pde_ui_menu() {
     'page callback' => 'pde_ui_pcb_entity_read',
     'access callback' => TRUE,
     'type' => MENU_NORMAL_ITEM,
-
   );
 
   return $items;

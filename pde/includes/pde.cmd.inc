@@ -29,11 +29,24 @@ function pde_cmd_print_entity($entity, $type = NULL) {
   $header = 'Entity (' . $wrapper->type();
   $header .= ') - ID# ' . $wrapper->getIdentifier() . ':';
 
+  // dpm($wrapper->value()); returns entity object.
+  // user: stdClass object
+  // node: stdClass object
+  // ingredient: Entity object (see hook_entity_info())
+
   $rows = array();
+  // It is possible to use foreach ($wrapper ... ) to iterate properties,
+  // because it implements IteratorAggregate interface. The individual
+  // properties can be accessed by name, e.g. $wrapper->name.
   foreach ($wrapper as $key => $property) {
-    // dpm($key);
-    // dpm($property);
-    $rows[$key] = $property->value();
+    if ($property instanceof EntityValueWrapper) {
+      $rows[$key] = $property->value();
+    }
+    else {
+      // For example: user->roles property is of class EntityListWrapper,
+      // then label is created as list of array values.
+      $rows[$key] = $property->label();
+    }
   }
 
   $table = '';
