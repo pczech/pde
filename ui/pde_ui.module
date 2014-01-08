@@ -27,11 +27,19 @@ function pde_ui_menu() {
   );
 
   $items['pde/create'] = array(
-    'title' => 'Create entity',
+    'title' => 'Create',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('pde_ui_entity_create'),
+    'page arguments' => array('pde_ui_form_entity_create'),
     'access callback' => TRUE,
     'type' => MENU_NORMAL_ITEM,
+  );
+
+  $items['pde/read'] = array(
+    'title' => 'Read',
+    'page callback' => 'pde_ui_pcb_entity_read',
+    'access callback' => TRUE,
+    'type' => MENU_NORMAL_ITEM,
+
   );
 
   return $items;
@@ -51,7 +59,7 @@ function pde_ui_pcb_info() {
 /**
  * Form constructor.
  */
-function pde_ui_entity_create($form, &$form_state) {
+function pde_ui_form_entity_create($form, &$form_state) {
   pde_trace_funct();
 
   $entities = array_keys(entity_get_info());
@@ -83,7 +91,7 @@ function pde_ui_entity_create($form, &$form_state) {
 /**
  * From validate handler.
  */
-function pde_ui_entity_create_validate($form, $form_state) {
+function pde_ui_form_entity_create_validate($form, $form_state) {
   if (drupal_json_decode($form_state['values']['entity_data']) == NULL) {
     form_set_error('entity_data', t('The JSON data cannot be decoded.'));
   }
@@ -93,14 +101,30 @@ function pde_ui_entity_create_validate($form, $form_state) {
 /**
  * Form submit handler.
  */
-function pde_ui_entity_create_submit($form, &$form_state) {
+function pde_ui_form_entity_create_submit($form, &$form_state) {
   pde_trace_funct();
   // dpm($form_state);
 
   $type = $form_state['values']['entity_type'];
   $data = $form_state['values']['entity_data'];
-  pde_cmd_entity_create($type, $data);
+  $wrapper = pde_cmd_entity_create($type, $data);
+  $type = $wrapper->type();
+  $id = $wrapper->getIdentifier();
 
   drupal_set_message(t('Entity created'));
-  $form_state['redirect'] = 'pde';
+  $form_state['redirect'] = "pde/read/$type/$id";
+}
+
+
+/**
+ * Read entity of given type and id.
+ */
+function pde_ui_pcb_entity_read($entity_type = NULL, $entity_id = NULL) {
+  pde_trace_funct();
+
+  if (!array_key_exists($entity_type, entity_get_info())) {
+    return 'Please use the following path: /read/ENTITY/ID, for example /read/user/1';
+  }
+
+  return pde_cmd_entity_read($entity_type, $entity_id);
 }

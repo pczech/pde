@@ -36,5 +36,5 @@ function pde_02_schema() {
     ),
   );
 
-  // return $schema;
+  return $schema;
 }

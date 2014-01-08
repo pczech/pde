@@ -17,12 +17,11 @@ function pde_02_entity_info() {
 
   $entity = array();
   $entity['ingredient'] = array(
-    /*
     'label' => t('Ingredient'),
     // Entity API parameter. See hook_entity_info in entity/tests/
     // entity_test.module and entity/README.txt.
     'entity class' => 'Entity',
-    // EntityAPIController is a class of Entity API
+    // EntityAPIController is a class of Entity API.
     'controller class' => 'EntityAPIController',
     'base table' => 'ingredient',
     'entity keys' => array(
@@ -30,7 +29,6 @@ function pde_02_entity_info() {
       'label' => 'name',
     ),
     'fieldable' => FALSE,
-    */
   );
 
   return $entity;
