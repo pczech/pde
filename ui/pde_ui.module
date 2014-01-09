@@ -32,6 +32,7 @@ function pde_ui_menu() {
     'page arguments' => array('pde_ui_form_entity_create'),
     'access callback' => TRUE,
     'type' => MENU_NORMAL_ITEM,
+    'weight' => 1,
   );
 
   $items['pde/read'] = array(
@@ -40,6 +41,7 @@ function pde_ui_menu() {
     'page arguments' => array('pde_ui_form_entity_read'),
     'access callback' => TRUE,
     'type' => MENU_NORMAL_ITEM,
+    'weight' => 2,
   );
 
   $items['pde/read/%/%'] = array(
@@ -56,6 +58,16 @@ function pde_ui_menu() {
     'page arguments' => array('pde_ui_form_entity_update'),
     'access callback' => TRUE,
     'type' => MENU_NORMAL_ITEM,
+    'weight' => 3,
+  );
+
+  $items['pde/delete'] = array(
+    'title' => 'Delete',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('pde_ui_form_entity_delete'),
+    'access callback' => TRUE,
+    'type' => MENU_NORMAL_ITEM,
+    'weight' => 4,
   );
 
   return $items;
@@ -265,6 +277,52 @@ function pde_ui_form_entity_update_submit($form, &$form_state) {
 
   drupal_set_message(t('Entity updated'));
   $form_state['redirect'] = "pde/read/$type/$id";
+}
+
+
+/**
+ * Form 'Entity delete' constructor.
+ */
+function pde_ui_form_entity_delete($form, &$form_state) {
+  pde_trace_funct();
+
+  $form['entity_type'] = array(
+    '#type' => 'select',
+    '#title' => t('Entity type'),
+    '#options' => _pde_ui_get_select_options(),
+    '#description' => t('Select entity type.'),
+  );
+
+  $form['entity_id'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Entity id'),
+    '#maxlength' => 10,
+    '#size' => 5,
+    '#element_validate' => array('element_validate_number'),
+  );
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Delete'),
+  );
+
+  return $form;
+}
+
+
+/**
+ * Form 'Entity delete' submit handler.
+ */
+function pde_ui_form_entity_delete_submit($form, &$form_state) {
+  pde_trace_funct();
+
+  $type = $form_state['values']['entity_type'];
+  $id = $form_state['values']['entity_id'];
+
+  pde_cmd_entity_delete($type, $id);
+
+  drupal_set_message(t('Entity deleted'));
+  // $form_state['redirect'] = "pde/delete";
 }
 
 

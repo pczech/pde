@@ -24,6 +24,7 @@ str_pad
 
 entity wrapper class
 --------------------
+delete
 getIdentifier
 getPropertyInfo
 label

@@ -125,3 +125,14 @@ function pde_cmd_entity_update($type, $id, $data) {
 
   $wrapper->save();
 }
+
+
+/**
+ * DELETE an entity.
+ */
+function pde_cmd_entity_delete($type, $id) {
+  pde_trace_funct();
+
+  $wrapper = entity_metadata_wrapper($type, $id);
+  $wrapper->delete();
+}
