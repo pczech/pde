@@ -35,17 +35,18 @@ function pde_cmd_print_entity($entity, $type = NULL) {
   // ingredient: Entity object (see hook_entity_info())
 
   $rows = array();
+  $options = array('sanitize' => TRUE);
   // It is possible to use foreach ($wrapper ... ) to iterate properties,
   // because it implements IteratorAggregate interface. The individual
   // properties can be accessed by name, for example $wrapper->name.
   foreach ($wrapper as $key => $property) {
     if ($property instanceof EntityValueWrapper) {
-      $rows[$key] = $property->value();
+      $rows[$key] = $property->value($options);
     }
     else {
       // For example: user->roles property is of class EntityListWrapper,
       // then label is created as list of array values.
-      $rows[$key] = $property->label();
+      $rows[$key] = $property->label($options);
     }
   }
 
