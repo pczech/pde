@@ -65,15 +65,13 @@ function pde_cmd_print_entity($entity, $type = NULL) {
  * @param $type
  *   Entity type
  * @param $data
- *   Either JSON string, an object or an associative array.
+ *   An object or an associative array.
  *
  * @return
  *   The created entity wrapped in an EntityMetadataWrapper.
  */
 function pde_cmd_entity_create($type, $data) {
   pde_trace_funct();
-
-  $data = drupal_json_decode($data);
 
   // entity_create requires entity definition ( by hook_entity_info() ). The
   // schema to store entity in db defined by hook_schema() is not used now.
@@ -111,13 +109,19 @@ function pde_cmd_entity_read($type, $id) {
  * @param $id
  *   Entity ID.
  * @param $data
- *   Either JSON string, an object or an associative array.
+ *   An object or an associative array.
  */
 function pde_cmd_entity_update($type, $id, $data) {
   pde_trace_funct();
+
   $wrapper = entity_metadata_wrapper($type, $id);
 
-  $data = drupal_json_decode($data);
-  dpm($wrapper);
-  dpm($data);
+  // Updating properties requires to define 'setter callback', otherwise
+  // exception "EntityMetadataWrapperException: Entity property name doesn't
+  // support writing." is thrown. See pde_02_entity_property_info_alter().
+  foreach ($data as $property => $value) {
+    $wrapper->$property = $value;
+  }
+
+  $wrapper->save();
 }

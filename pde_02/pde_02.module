@@ -9,6 +9,9 @@
 module_load_include('inc', 'pde', 'includes/tools');
 
 
+// @ignore sniffer_commenting_inlinecomment_spacingafter:file
+
+
 /**
  * Implements hook_entity_info().
  */
@@ -32,4 +35,21 @@ function pde_02_entity_info() {
   );
 
   return $entity;
+}
+
+
+/**
+ * Implements hook_entity_property_info_alter().
+ *
+ * Called after flush of cache.
+ */
+function pde_02_entity_property_info_alter(&$info) {
+  pde_trace_funct();
+  // dpm($info);
+
+  $properties = &$info['ingredient']['properties'];
+
+  $properties['name'] += array(
+    'setter callback' => 'entity_property_verbatim_set',
+  );
 }

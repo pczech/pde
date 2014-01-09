@@ -89,10 +89,16 @@ function pde_ui_form_entity_create($form, &$form_state) {
         array('@entities' => implode(', ', $entities))),
   );
 
-  $form['entity_data'] = array(
+  $form['entity_data_json'] = array(
     '#type' => 'textfield',
     '#title' => t('Entity data'),
     '#description' => t('Enter entity data in JSON format, for example: {"name": "Salt"}'),
+  );
+
+  // Placeholder for decoded 'entity_data_json'
+  $form['entity_data'] = array(
+    '#type' => 'value',
+    '#value' => array(),
   );
 
   $form['submit'] = array(
@@ -108,9 +114,11 @@ function pde_ui_form_entity_create($form, &$form_state) {
  * From 'Entity create' validate handler.
  */
 function pde_ui_form_entity_create_validate($form, &$form_state) {
-  if (drupal_json_decode($form_state['values']['entity_data']) == NULL) {
-    form_set_error('entity_data', t('The JSON data cannot be decoded.'));
+  // dpm($form_state);
+  if (($data = drupal_json_decode($form_state['values']['entity_data_json'])) == NULL) {
+    form_set_error('entity_data_json', t('The JSON data cannot be decoded.'));
   }
+  $form_state['values']['entity_data'] = $data;
 }
 
 
@@ -210,10 +218,16 @@ function pde_ui_form_entity_update($form, &$form_state) {
     '#element_validate' => array('element_validate_number'),
   );
 
-  $form['entity_data'] = array(
+  $form['entity_data_json'] = array(
     '#type' => 'textfield',
     '#title' => t('Entity data'),
     '#description' => t('Enter entity data in JSON format, for example: {"name": "Salt"}'),
+  );
+
+  // Placeholder for decoded 'entity_data_json'
+  $form['entity_data'] = array(
+    '#type' => 'value',
+    '#value' => array(),
   );
 
   $form['submit'] = array(
@@ -226,6 +240,18 @@ function pde_ui_form_entity_update($form, &$form_state) {
 
 
 /**
+ * From 'Entity update' validate handler.
+ */
+function pde_ui_form_entity_update_validate($form, &$form_state) {
+  // dpm($form_state);
+  if (($data = drupal_json_decode($form_state['values']['entity_data_json'])) == NULL) {
+    form_set_error('entity_data_json', t('The JSON data cannot be decoded.'));
+  }
+  $form_state['values']['entity_data'] = $data;
+}
+
+
+/**
  * Form 'Entity update' submit handler.
  */
 function pde_ui_form_entity_update_submit($form, &$form_state) {
@@ -233,9 +259,11 @@ function pde_ui_form_entity_update_submit($form, &$form_state) {
 
   $type = $form_state['values']['entity_type'];
   $id = $form_state['values']['entity_id'];
-  $data = $form_state['values']['entity_id'];
+  $data = $form_state['values']['entity_data'];
 
   pde_cmd_entity_update($type, $id, $data);
+
+  drupal_set_message(t('Entity updated'));
   $form_state['redirect'] = "pde/read/$type/$id";
 }
 
@@ -243,7 +271,7 @@ function pde_ui_form_entity_update_submit($form, &$form_state) {
 /**
  * Create array of entities' labels keyed by entity type.
  *
- * The array is suitable for form 'select' element's #options
+ * The array is used to fill '#options' parameter of 'select' element in forms.
  */
 function _pde_ui_get_select_options() {
   $entities = entity_get_info();
