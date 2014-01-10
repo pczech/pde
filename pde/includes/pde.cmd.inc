@@ -140,14 +140,13 @@ function pde_cmd_entity_delete($type, $id) {
 
 
 /**
- * Print the property names and values of the entity with the
- * given type and ID.
+ * Print the property names and values of the entity with the given type and ID.
  *
  * @param $type
  *   Entity type.
  * @param $id
- *   Entity ID. If not given the entity property information of
- *   the entity type will be printed instead.
+ *   Entity ID. If not given the entity property information of the entity type
+ *   will be printed instead.
  */
 function pde_cmd_entity_properties($type, $id = NULL) {
   pde_trace_funct();
@@ -174,4 +173,24 @@ function pde_cmd_entity_properties($type, $id = NULL) {
 function pde_cmd_entity_info($type) {
   $info = entity_get_info($type);
   return '<pre>' . print_r($info, TRUE) . '</pre>';
+}
+
+
+/**
+ * Print given table information.
+ *
+ * @param $table
+ *   Table name.
+ */
+function pde_cmd_table_info($table) {
+  if (!($schema = drupal_get_schema($table))) {
+    return '';
+  }
+
+  $rows = array(array_keys($schema['fields']));
+
+  dpm($schema);
+  dpm($rows);
+  // @todo
+  return '';
 }

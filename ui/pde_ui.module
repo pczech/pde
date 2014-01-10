@@ -87,7 +87,6 @@ function pde_ui_menu() {
     'type' => MENU_CALLBACK,
   );
 
-
   $items['pde/info'] = array(
     'title' => 'Info',
     'page callback' => 'drupal_get_form',
@@ -114,6 +113,13 @@ function pde_ui_menu() {
     'weight' => 7,
   );
 
+  $items['pde/table/%'] = array(
+    'title' => 'Table',
+    'page callback' => 'pde_ui_pcb_table_info',
+    'page arguments' => array(2),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
 
   return $items;
 }
@@ -498,7 +504,17 @@ function pde_ui_form_table_info_submit($form, &$form_state) {
   pde_trace_funct();
 
   $table = $form_state['values']['table'];
-  dpm($table);
+  $form_state['redirect'] = "pde/table/$table";
+}
+
+
+/**
+ * Show given table info.
+ */
+function pde_ui_pcb_table_info($table = NULL) {
+  pde_trace_funct();
+
+  return pde_cmd_table_info($table);
 }
 
 
@@ -527,5 +543,6 @@ function _pde_ui_get_entity_select_options() {
  */
 function _pde_ui_get_table_select_options() {
   $tables = array_keys(drupal_get_schema());
+  sort($tables);
   return array_combine($tables, $tables);
 }

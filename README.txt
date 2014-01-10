@@ -22,6 +22,8 @@ PHP
 ---
 array_combine
 array_key_exists
+print_r
+sort
 str_pad
 
 
