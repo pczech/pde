@@ -6,18 +6,21 @@ entity_get_info
 Entity API
 ----------
 entity_create
+entity_get_property_info
 entity_metadata_wrapper
 hook_entity_property_info_alter
 
 
 Other
 -----
+drupal_get_schema
 drupal_json_decode
 module_load_include
 
 
 PHP
 ---
+array_combine
 array_key_exists
 str_pad
 

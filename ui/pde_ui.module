@@ -70,6 +70,51 @@ function pde_ui_menu() {
     'weight' => 4,
   );
 
+  $items['pde/properties'] = array(
+    'title' => 'Properties',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('pde_ui_form_entity_properties'),
+    'access callback' => TRUE,
+    'type' => MENU_NORMAL_ITEM,
+    'weight' => 5,
+  );
+
+  $items['pde/properties/%'] = array(
+    'title' => 'Properties',
+    'page callback' => 'pde_ui_pcb_entity_properties',
+    'page arguments' => array(2),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+
+
+  $items['pde/info'] = array(
+    'title' => 'Info',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('pde_ui_form_entity_info'),
+    'access callback' => TRUE,
+    'type' => MENU_NORMAL_ITEM,
+    'weight' => 6,
+  );
+
+  $items['pde/info/%'] = array(
+    'title' => 'Info',
+    'page callback' => 'pde_ui_pcb_entity_info',
+    'page arguments' => array(2),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['pde/table'] = array(
+    'title' => 'Table',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('pde_ui_form_table_info'),
+    'access callback' => TRUE,
+    'type' => MENU_NORMAL_ITEM,
+    'weight' => 7,
+  );
+
+
   return $items;
 }
 
@@ -99,6 +144,7 @@ function pde_ui_form_entity_create($form, &$form_state) {
     '#title' => t('Entity type'),
     '#description' => t('Enter entity type. The following types are available: @entities',
         array('@entities' => implode(', ', $entities))),
+    '#required' => TRUE,
   );
 
   $form['entity_data_json'] = array(
@@ -161,7 +207,7 @@ function pde_ui_form_entity_read($form, &$form_state) {
   $form['entity_type'] = array(
     '#type' => 'select',
     '#title' => t('Entity type'),
-    '#options' => _pde_ui_get_select_options(),
+    '#options' => _pde_ui_get_entity_select_options(),
     '#description' => t('Select entity type.'),
   );
 
@@ -218,7 +264,7 @@ function pde_ui_form_entity_update($form, &$form_state) {
   $form['entity_type'] = array(
     '#type' => 'select',
     '#title' => t('Entity type'),
-    '#options' => _pde_ui_get_select_options(),
+    '#options' => _pde_ui_get_entity_select_options(),
     '#description' => t('Select entity type.'),
   );
 
@@ -289,7 +335,7 @@ function pde_ui_form_entity_delete($form, &$form_state) {
   $form['entity_type'] = array(
     '#type' => 'select',
     '#title' => t('Entity type'),
-    '#options' => _pde_ui_get_select_options(),
+    '#options' => _pde_ui_get_entity_select_options(),
     '#description' => t('Select entity type.'),
   );
 
@@ -327,11 +373,142 @@ function pde_ui_form_entity_delete_submit($form, &$form_state) {
 
 
 /**
+ * Form 'Entity properties' constructor.
+ */
+function pde_ui_form_entity_properties($form, &$form_state) {
+  pde_trace_funct();
+
+  $form['entity_type'] = array(
+    '#type' => 'select',
+    '#title' => t('Entity type'),
+    '#options' => _pde_ui_get_entity_select_options(),
+    '#description' => t('Select entity type.'),
+  );
+
+  $form['entity_id'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Entity id'),
+    '#maxlength' => 10,
+    '#size' => 5,
+    '#element_validate' => array('element_validate_number'),
+  );
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Properties'),
+  );
+
+  return $form;
+}
+
+
+/**
+ * Form 'Entity properties' submit handler.
+ */
+function pde_ui_form_entity_properties_submit($form, &$form_state) {
+  pde_trace_funct();
+
+  $type = $form_state['values']['entity_type'];
+  $id = $form_state['values']['entity_id'];
+
+  $form_state['redirect'] = "pde/properties/$type/$id";
+}
+
+
+/**
+ * Show entity properties of given type and id.
+ */
+function pde_ui_pcb_entity_properties($entity_type = NULL, $entity_id = NULL) {
+  pde_trace_funct();
+
+  return pde_cmd_entity_properties($entity_type, $entity_id);
+}
+
+
+/**
+ * Form 'Entity info' constructor.
+ */
+function pde_ui_form_entity_info($form, &$form_state) {
+  pde_trace_funct();
+
+  $form['entity_type'] = array(
+    '#type' => 'select',
+    '#title' => t('Entity type'),
+    '#options' => _pde_ui_get_entity_select_options(),
+    '#description' => t('Select entity type.'),
+  );
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Info'),
+  );
+
+  return $form;
+}
+
+
+/**
+ * Form 'Entity info' submit handler.
+ */
+function pde_ui_form_entity_info_submit($form, &$form_state) {
+  pde_trace_funct();
+
+  $type = $form_state['values']['entity_type'];
+
+  $form_state['redirect'] = "pde/info/$type";
+}
+
+
+/**
+ * Show entity info of given type.
+ */
+function pde_ui_pcb_entity_info($entity_type = NULL) {
+  pde_trace_funct();
+
+  return pde_cmd_entity_info($entity_type);
+}
+
+
+/**
+ * Form 'Table info' constructor.
+ */
+function pde_ui_form_table_info($form, &$form_state) {
+  pde_trace_funct();
+
+  $form['table'] = array(
+    '#type' => 'select',
+    '#title' => t('Entity type'),
+    '#options' => _pde_ui_get_table_select_options(),
+    '#description' => t('Select table.'),
+  );
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Table'),
+  );
+
+  return $form;
+}
+
+
+/**
+ * Form 'Table info' submit handler.
+ */
+function pde_ui_form_table_info_submit($form, &$form_state) {
+  pde_trace_funct();
+
+  $table = $form_state['values']['table'];
+  dpm($table);
+}
+
+
+/**
  * Create array of entities' labels keyed by entity type.
  *
- * The array is used to fill '#options' parameter of 'select' element in forms.
+ * The array is used to fill '#options' parameter of entity 'select' element
+ * in forms.
  */
-function _pde_ui_get_select_options() {
+function _pde_ui_get_entity_select_options() {
   $entities = entity_get_info();
   $options = array();
   foreach ($entities as $type => $data) {
@@ -339,4 +516,16 @@ function _pde_ui_get_select_options() {
   }
 
   return $options;
+}
+
+
+/**
+ * Create array of tables names.
+ *
+ * The array is used to fill '#options' parameter of tables 'select' element
+ * in forms.
+ */
+function _pde_ui_get_table_select_options() {
+  $tables = array_keys(drupal_get_schema());
+  return array_combine($tables, $tables);
 }

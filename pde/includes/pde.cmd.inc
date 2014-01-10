@@ -137,3 +137,41 @@ function pde_cmd_entity_delete($type, $id) {
   $wrapper = entity_metadata_wrapper($type, $id);
   $wrapper->delete();
 }
+
+
+/**
+ * Print the property names and values of the entity with the
+ * given type and ID.
+ *
+ * @param $type
+ *   Entity type.
+ * @param $id
+ *   Entity ID. If not given the entity property information of
+ *   the entity type will be printed instead.
+ */
+function pde_cmd_entity_properties($type, $id = NULL) {
+  pde_trace_funct();
+
+  $info = array();
+  if (isset($id)) {
+    $wrapper = entity_metadata_wrapper($type, $id);
+    $info = $wrapper->getPropertyInfo();
+  }
+  else {
+    $info = entity_get_property_info($type);
+  }
+
+  return '<pre>' . print_r($info, TRUE) . '</pre>';
+}
+
+
+/**
+ * Print the entity information of the given entity type.
+ *
+ * @param $type
+ *   Entity type.
+ */
+function pde_cmd_entity_info($type) {
+  $info = entity_get_info($type);
+  return '<pre>' . print_r($info, TRUE) . '</pre>';
+}
