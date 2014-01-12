@@ -1,0 +1,180 @@
+<?php
+
+/**
+ * @file
+ * Contains example code demonstrating topics covered in Chapter 3.
+ */
+
+// @ignore sniffer_squiz_commenting_poststatementcomment_found:file
+// @ignore sniffer_commenting_inlinecomment_spacingafter:file
+// @ignore sniffer_commenting_inlinecomment_invalidendchar:file
+
+
+module_load_include('inc', 'pde', 'includes/tools');
+
+
+/**
+ * Implements hook_menu().
+ */
+function pde_03_menu() {
+  pde_trace_funct();
+
+  $items = array();
+
+  $items['filent'] = array(
+    'title' => 'File entities',
+    'page callback' => 'pde_03_pcb_info',
+    'access callback' => TRUE,
+  );
+
+  $items['filent/create'] = array(
+    'title' => 'Create',
+    'page callback' => 'pde_03_pcb_create',
+    'access callback' => TRUE,
+  );
+
+  $items['filent/read'] = array(
+    'title' => 'Read',
+    'page callback' => 'pde_03_pcb_read',
+    'access callback' => TRUE,
+  );
+
+  return $items;
+}
+
+
+/**
+ * Show info page for File Entity menu.
+ */
+function pde_03_pcb_info() {
+  pde_trace_funct();
+
+  return t('Select file entity action from menu.');
+}
+
+
+/**
+ * Page callback: create file entity.
+ */
+function pde_03_pcb_create() {
+  pde_trace_funct();
+
+  pde_03_file_create();
+  return 'Done';
+}
+
+
+/**
+ * Command: create file entity.
+ */
+function pde_03_file_create() {
+  $filename = 'helloworld.txt';
+  $uri = 'public://' . $filename;
+  $content = "Hello, world!\nI am Programming Drupal Entities!\n";
+  $file = file_save_data($content, $uri, FILE_EXISTS_REPLACE);
+  $wrapper = entity_metadata_wrapper('file', $file);
+  // Compare dpm($file) and dpm($wrapper->getPropertyInfo()).
+  // Some of the wrapper property names differ from the entity property names
+  // (database field names). The values can be different between the wrapper
+  // property and the entity property; so can the type. For example, the owner
+  // wrapper property will be a user entity wrapper whereas the uid entity
+  // property is just a numeric user ID.
+  dpm($file);                            // stdClass.
+  dpm($wrapper);                         // EntityDrupalWrapper
+  dpm($wrapper->getPropertyInfo());
+
+  // Accessing wrapper properties and corresponding entity fields:
+  dpm($wrapper->value());                // stdClass (file object)
+
+  dpm('fid');
+  dpm($wrapper->value()->fid);
+  dpm($wrapper->fid);                    // EntityValueWrapper
+  dpm($wrapper->fid->value());
+
+  dpm('filename');
+  dpm($wrapper->value()->filename);
+  dpm($wrapper->name);                   // EntityValueWrapper
+  dpm($wrapper->name->value());
+
+  dpm('uid');
+  dpm($wrapper->value()->uid);
+  dpm($wrapper->owner);                   // EntityDrupalWrapper
+  dpm($wrapper->owner->value());          // stdClass (user object)
+  dpm($wrapper->owner->getPropertyInfo());
+  dpm($wrapper->owner->uid);              // EntityValueWrapper
+  dpm($wrapper->owner->uid->value());     // EntityValueWrapper
+
+  dpm('status');
+  dpm($wrapper->value()->status);
+  // No access via wrapper!
+  // dpm($wrapper->status);
+}
+
+
+/**
+ * Page callback: read file entity.
+ */
+function pde_03_pcb_read() {
+  pde_trace_funct();
+
+  pde_03_file_read();
+  return 'Done';
+}
+
+
+/**
+ * Command: read file entity.
+ */
+function pde_03_file_read($fid = 1) {
+  // entity_metadata_wrapper accepts entity object, entity id.
+  $wrapper = entity_metadata_wrapper('file', $fid);
+  dpm($wrapper);                         // EntityDrupalWrapper
+  dpm($wrapper->getPropertyInfo());
+
+  // Accessing wrapper properties and corresponding entity fields:
+  dpm($wrapper->value());                // stdClass (file object)
+
+  dpm('fid');
+  dpm($wrapper->value()->fid);
+  dpm($wrapper->fid);                    // EntityValueWrapper
+  dpm($wrapper->fid->value());
+
+  dpm('filename');
+  dpm($wrapper->value()->filename);
+  dpm($wrapper->name);                   // EntityValueWrapper
+  dpm($wrapper->name->value());
+
+  dpm('uid');
+  dpm($wrapper->value()->uid);
+  dpm($wrapper->owner);                   // EntityDrupalWrapper
+  dpm($wrapper->owner->value());          // stdClass (user object)
+  dpm($wrapper->owner->getPropertyInfo());
+  dpm($wrapper->owner->uid);              // EntityValueWrapper
+  dpm($wrapper->owner->uid->value());     // EntityValueWrapper
+
+  dpm('status');
+  dpm($wrapper->value()->status);
+  // No access via wrapper!
+  // dpm($wrapper->status);
+
+  dpm('Trying to update name...');
+  // setter_callback are not set so, properties can not be written.
+  // $wrapper->name = 'helloworld1.txt';
+
+  // Although it is possible to update the name directly:
+  $wrapper->value()->name = 'helloworld1.txt';
+  $tmp1 = $wrapper->name->value();
+  $tmp2 = $wrapper->value()->name;
+  dpm($tmp1);              // 'helloworld.txt'
+  dpm($tmp2);              // 'helloworld1.txt'
+
+  // The new value will not be saved.
+  // @todo Check how it works.
+  $wrapper->save();
+
+  // Alternative way - directly via entity?
+  // $entity = entity_load_unchanged('file', $fid);
+  // dpm($entity);                            // stdClass
+  // $entity->status = 0;
+  // $entity->save();
+}

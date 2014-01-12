@@ -1,0 +1,6 @@
+name = Chapter 3
+description = Contains example code demonstrating topics covered in Chapter 3.
+package = Programming Drupal Entities
+core = 7.x
+dependencies[] = entity
+version = 7.x-1.0

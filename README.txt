@@ -7,6 +7,7 @@ Entity API
 ----------
 entity_create
 entity_get_property_info
+entity_load_unchanged
 entity_metadata_wrapper
 hook_entity_property_info_alter
 
