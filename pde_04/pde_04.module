@@ -1,0 +1,154 @@
+<?php
+
+/**
+ * @file
+ * Contains example code demonstrating topics covered in Chapter 4.
+ */
+
+// @ignore sniffer_squiz_commenting_poststatementcomment_found:file
+// @ignore sniffer_commenting_inlinecomment_spacingafter:file
+// @ignore sniffer_commenting_inlinecomment_invalidendchar:file
+
+module_load_include('inc', 'pde', 'includes/tools');
+
+/**
+ * Implements hook_menu().
+ */
+function pde_04_menu() {
+  pde_trace_funct();
+
+  $items = array();
+
+  $items['nodent'] = array(
+    'title' => 'Node entities',
+    'page callback' => 'pde_04_pcb_nodent_info',
+    'access callback' => TRUE,
+    'weight' => 1,
+  );
+
+  $items['nodent/read'] = array(
+    'title' => 'Read',
+    'page callback' => 'pde_04_pcb_nodent_read',
+    'access callback' => TRUE,
+    'weight' => 1,
+  );
+
+  $items['comment'] = array(
+    'title' => 'Comment entities',
+    'page callback' => 'pde_04_pcb_comment_info',
+    'access callback' => TRUE,
+    'weight' => 2,
+  );
+
+  $items['comment/read'] = array(
+    'title' => 'Read',
+    'page callback' => 'pde_04_pcb_comment_read',
+    'access callback' => TRUE,
+    'weight' => 1,
+  );
+
+  return $items;
+}
+
+
+/**
+ * Show info page for Node Entity menu.
+ */
+function pde_04_pcb_nodent_info() {
+  pde_trace_funct();
+
+  return t('Select node entity action from menu.');
+}
+
+
+/**
+ * Page callback: read node entity.
+ */
+function pde_04_pcb_nodent_read($nid = 1) {
+  pde_trace_funct();
+
+  // Wrapper will be created using node entity id.
+  _pde_04_node_wrapper_dpm($nid);
+  return 'Done';
+}
+
+
+/**
+ * Present example of entity wrapper usage.
+ */
+function _pde_04_node_wrapper_dpm($data) {
+  $wrapper = entity_metadata_wrapper('node', $data);
+  // Compare dpm($data) and dpm($wrapper->getPropertyInfo()).
+  // Some of the wrapper property names differ from the entity property names
+  // (database field names). The values can be different between the wrapper
+  // property and the entity property; so can the type. For example, the owner
+  // wrapper property will be a user entity wrapper whereas the uid entity
+  // property is just a numeric user ID.
+  dpm($data);                            // stdClass.
+  dpm($wrapper);                         // EntityDrupalWrapper
+  dpm($wrapper->getPropertyInfo());
+
+  // Accessing wrapper properties and corresponding entity fields:
+  dpm($wrapper->value());                // stdClass (file object)
+
+  dpm('body (field)');
+  dpm($wrapper->value()->body);
+  dpm($wrapper->body);                   // EntityStructureWrapper
+  dpm($wrapper->body->value());
+  dpm($wrapper->body->value);            // EntityValueWrapper
+  dpm($wrapper->body->value->value());
+}
+
+
+/**
+ * Show info page for Comment Entity menu.
+ */
+function pde_04_pcb_comment_info() {
+  pde_trace_funct();
+
+  return t('Select comment entity action from menu.');
+}
+
+
+/**
+ * Page callback: read comment entity.
+ */
+function pde_04_pcb_comment_read($cid = 1) {
+  pde_trace_funct();
+
+  // Wrapper will be created using comment entity id.
+  _pde_04_comment_wrapper_dpm($cid);
+  return 'Done';
+}
+
+
+/**
+ * Present example of entity wrapper usage.
+ */
+function _pde_04_comment_wrapper_dpm($data) {
+  $wrapper = entity_metadata_wrapper('comment', $data);
+  // Compare dpm($data) and dpm($wrapper->getPropertyInfo()).
+  // Some of the wrapper property names differ from the entity property names
+  // (database field names). The values can be different between the wrapper
+  // property and the entity property; so can the type. For example, the owner
+  // wrapper property will be a user entity wrapper whereas the uid entity
+  // property is just a numeric user ID.
+  dpm($data);                            // stdClass.
+  dpm($wrapper);                         // EntityDrupalWrapper
+  dpm($wrapper->getPropertyInfo());
+
+  // Accessing wrapper properties and corresponding entity fields:
+  dpm($wrapper->value());                // stdClass (file object)
+
+  dpm('subject');
+  dpm($wrapper->value()->subject);
+  dpm($wrapper->subject);                // EntityValueWrapper
+  dpm($wrapper->subject->value());
+
+  dpm('comment_body (field)');
+  dpm($wrapper->value()->comment_body);
+  dpm($wrapper->comment_body);           // EntityStructureWrapper
+  dpm($wrapper->comment_body->value());
+  dpm($wrapper->comment_body->value);    // EntityValueWrapper
+  dpm($wrapper->comment_body->value->value());
+}
