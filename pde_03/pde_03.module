@@ -95,6 +95,20 @@ function pde_03_menu() {
     'weight' => 3,
   );
 
+  $items['vocent/update'] = array(
+    'title' => 'Update',
+    'page callback' => 'pde_03_pcb_vocent_update',
+    'access callback' => TRUE,
+    'weight' => 4,
+  );
+
+  $items['vocent/delete'] = array(
+    'title' => 'Delete',
+    'page callback' => 'pde_03_pcb_vocent_delete',
+    'access callback' => TRUE,
+    'weight' => 5,
+  );
+
   return $items;
 }
 
@@ -293,7 +307,7 @@ function _pde_03_file_delete($fid = 1) {
 
 
 /**
- * Show info page for Vocabulary Entity menu.
+ * Show info page for vocabulary entity menu.
  */
 function pde_03_pcb_vocent_info() {
   pde_trace_funct();
@@ -313,8 +327,6 @@ function pde_03_pcb_vocent_create($op = 'ta') {
   $data = $cmd();
   // Wrapper is created using vocabulary entity (stdClass).
   _pde_03_vocabulary_wrapper_dpm($data);
-  // Delete the vocabulary.
-  _pde_03_vocabulary_delete($data->vid);
   return 'Done';
 }
 
@@ -325,7 +337,32 @@ function pde_03_pcb_vocent_create($op = 'ta') {
 function pde_03_pcb_vocent_read() {
   pde_trace_funct();
 
-  _pde_03_vocabulary_read();
+  $vocabulary = taxonomy_vocabulary_machine_name_load('cuisine');
+  _pde_03_vocabulary_read($vocabulary);
+  return 'Done';
+}
+
+
+/**
+ * Page callback: update vocabulary entity.
+ */
+function pde_03_pcb_vocent_update() {
+  pde_trace_funct();
+
+  $vocabulary = taxonomy_vocabulary_machine_name_load('cuisine');
+  _pde_03_vocabulary_update($vocabulary);
+  return 'Done';
+}
+
+
+/**
+ * Page callback: delete vocabulary entity.
+ */
+function pde_03_pcb_vocent_delete() {
+  pde_trace_funct();
+
+  $vocabulary = taxonomy_vocabulary_machine_name_load('cuisine');
+  _pde_03_vocabulary_delete($vocabulary);
   return 'Done';
 }
 
@@ -389,16 +426,27 @@ function _pde_03_vocabulary_create_ea() {
 /**
  * Command: read vocabulary entity.
  */
-function _pde_03_vocabulary_read() {
+function _pde_03_vocabulary_read($vocabulary) {
+  $wrapper = entity_metadata_wrapper('taxonomy_vocabulary', $vocabulary);
+  _pde_03_vocabulary_wrapper_dpm($wrapper->value());
+}
 
+
+/**
+ * Command: update vocabulary entity.
+ */
+function _pde_03_vocabulary_update($vocabulary) {
+  $wrapper = entity_metadata_wrapper('taxonomy_vocabulary', $vocabulary);
+  $wrapper->description = 'New description';
+  $wrapper->save();
 }
 
 
 /**
  * Command: delete vocabulary entity.
  */
-function _pde_03_vocabulary_delete($vid) {
-  $wrapper = entity_metadata_wrapper('taxonomy_vocabulary', $vid);
+function _pde_03_vocabulary_delete($vocabulary) {
+  $wrapper = entity_metadata_wrapper('taxonomy_vocabulary', $vocabulary);
   $wrapper->delete();
 }
 
@@ -417,4 +465,27 @@ function _pde_03_vocabulary_wrapper_dpm($data) {
   dpm($data);                            // stdClass
   dpm($wrapper);                         // EntityDrupalWrapper
   dpm($wrapper->getPropertyInfo());
+
+  // Accessing wrapper properties and corresponding entity fields:
+  dpm($wrapper->value());                // stdClass (vocabulary object)
+
+  dpm('vid');
+  dpm($wrapper->value()->vid);
+  dpm($wrapper->vid);                    // EntityValueWrapper
+  dpm($wrapper->vid->value());
+
+  dpm('name');
+  dpm($wrapper->value()->name);
+  dpm($wrapper->name);                   // EntityValueWrapper
+  dpm($wrapper->name->value());
+
+  dpm('description');
+  dpm($wrapper->value()->description);
+  dpm($wrapper->description);            // EntityValueWrapper
+  dpm($wrapper->description->value());
+
+  dpm('hierachy');
+  dpm($wrapper->value()->hierarchy);
+  // No access via wrapper!
+  // dpm($wrapper->hierarchy);
 }
