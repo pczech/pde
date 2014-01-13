@@ -25,56 +25,74 @@ function pde_03_menu() {
     'title' => 'File entities',
     'page callback' => 'pde_03_pcb_filent_info',
     'access callback' => TRUE,
-  );
-
-  $items['filent/create/ew'] = array(
-    'title' => 'Create by Wrapper',
-    'page callback' => 'pde_03_pcb_filent_create',
-    'page arguments' => array(2),
-    'access callback' => TRUE,
+    'weight' => 1,
   );
 
   $items['filent/create/fa'] = array(
-    'title' => 'Create by File API',
+    'title' => 'Create by FAPI',
     'page callback' => 'pde_03_pcb_filent_create',
     'page arguments' => array(2),
     'access callback' => TRUE,
+    'weight' => 1,
+  );
+
+  $items['filent/create/ea'] = array(
+    'title' => 'Create by EAPI',
+    'page callback' => 'pde_03_pcb_filent_create',
+    'page arguments' => array(2),
+    'access callback' => TRUE,
+    'weight' => 2,
   );
 
   $items['filent/read'] = array(
     'title' => 'Read',
     'page callback' => 'pde_03_pcb_filent_read',
     'access callback' => TRUE,
+    'weight' => 3,
   );
 
   $items['filent/update'] = array(
     'title' => 'Update',
     'page callback' => 'pde_03_pcb_filent_update',
     'access callback' => TRUE,
+    'weight' => 4,
   );
 
   $items['filent/delete'] = array(
     'title' => 'Delete',
     'page callback' => 'pde_03_pcb_filent_delete',
     'access callback' => TRUE,
+    'weight' => 5,
   );
 
   $items['vocent'] = array(
     'title' => 'Vocabulary entities',
     'page callback' => 'pde_03_pcb_vocent_info',
     'access callback' => TRUE,
+    'weight' => 2,
   );
 
-  $items['vocent/create'] = array(
-    'title' => 'Create',
+  $items['vocent/create/ta'] = array(
+    'title' => 'Create by TAPI',
     'page callback' => 'pde_03_pcb_vocent_create',
+    'page arguments' => array(2),
     'access callback' => TRUE,
+    'weight' => 1,
+  );
+
+  $items['vocent/create/ea'] = array(
+    'title' => 'Create by EAPI',
+    'page callback' => 'pde_03_pcb_vocent_create',
+    'page arguments' => array(2),
+    'access callback' => TRUE,
+    'weight' => 2,
   );
 
   $items['vocent/read'] = array(
     'title' => 'Read',
     'page callback' => 'pde_03_pcb_vocent_read',
     'access callback' => TRUE,
+    'weight' => 3,
   );
 
   return $items;
@@ -153,9 +171,9 @@ function _pde_03_file_create_fa() {
 
 
 /**
- * Command: create file entity via entity wrapper.
+ * Command: create file entity via Entity API.
  */
-function _pde_03_file_create_ew() {
+function _pde_03_file_create_ea() {
   global $user;
 
   $filename = 'helloworld.txt';
@@ -164,6 +182,8 @@ function _pde_03_file_create_ew() {
 
   $uri = file_unmanaged_save_data($content, $uri, FILE_EXISTS_REPLACE);
 
+  // Use entity properties for entity_create.
+  // See also _pde_03_vocabulary_create_ea.
   $data = array(
     'fid' => NULL,
     'uri' => $uri,
@@ -173,8 +193,9 @@ function _pde_03_file_create_ew() {
     'status' => FILE_STATUS_PERMANENT,
   );
 
-  // It seems not to work. File entity doesn't implement
-  // EntityAPIControllerInterface.
+  // 'file' entity doesn't define 'creation callback' function and doesn't
+  // implement EntityAPIControllerInterface, thus entity_create doesn't
+  // work. See _entity_info_add_metadata in entity/entity.module file.
   $entity = entity_create('file', $data);
   return $entity;
 }
@@ -284,10 +305,16 @@ function pde_03_pcb_vocent_info() {
 /**
  * Page callback: create vocabulary entity.
  */
-function pde_03_pcb_vocent_create() {
+function pde_03_pcb_vocent_create($op = 'ta') {
   pde_trace_funct();
 
-  pde_03_vocabulary_create();
+  $cmd = '_pde_03_vocabulary_create_' . $op;
+
+  $data = $cmd();
+  // Wrapper is created using vocabulary entity (stdClass).
+  _pde_03_vocabulary_wrapper_dpm($data);
+  // Delete the vocabulary.
+  _pde_03_vocabulary_delete($data->vid);
   return 'Done';
 }
 
@@ -298,22 +325,96 @@ function pde_03_pcb_vocent_create() {
 function pde_03_pcb_vocent_read() {
   pde_trace_funct();
 
-  pde_03_vocabulary_read();
+  _pde_03_vocabulary_read();
   return 'Done';
 }
 
 
 /**
- * Command: create vocabulary entity.
+ * Command: create vocabulary entity by Taxonomy API.
  */
-function pde_03_vocabulary_create() {
+function _pde_03_vocabulary_create_ta() {
+  $data = array(
+    'name' => 'Cuisine',
+    'machine_name' => 'cuisine',
+    'description' => 'Contains terms representing different cuisines.',
+  );
 
+  taxonomy_vocabulary_save((object) $data);
+
+  // 1. method
+  // Retrieve the entity from db using entity wrapper and return it.
+  $vocabularies = taxonomy_vocabulary_get_names();
+  $vid = $vocabularies['cuisine']->vid;
+  // dpm($vocabularies);
+  // dpm($vid);
+  $wrapper = entity_metadata_wrapper('taxonomy_vocabulary', $vid);
+
+  // 2. method
+  $vocabulary = taxonomy_vocabulary_machine_name_load('cuisine');
+  // dpm($vocabulary);
+  $wrapper = entity_metadata_wrapper('taxonomy_vocabulary', $vocabulary);
+  return $wrapper->value();
+}
+
+
+/**
+ * Command: create vocabulary entity by Entity API.
+ */
+function _pde_03_vocabulary_create_ea() {
+
+  // Use entity properties (not wrapper properties) for entity_create.
+  $data = array(
+    'name' => 'Cuisine',
+    'machine_name' => 'cuisine',
+    'description' => 'Contains terms representing different cuisines.',
+    'hierarchy' => 1,
+  );
+
+  // 'taxonomy vocabulary' entity doesn't implement
+  // EntityAPIControllerInterface, but it supports 'creation callback'
+  // function, so the entity can be created in this way.
+  // Compare with _pde_03_file_create_ea above.
+  $entity = entity_create('taxonomy_vocabulary', $data);      // stdClass
+  dpm($entity);
+
+  // Save adds remaining properties. Compare dpm($entity) before and after.
+  $wrapper = entity_metadata_wrapper('taxonomy_vocabulary', $entity);
+  $wrapper->save();
+
+  return $entity;
 }
 
 
 /**
  * Command: read vocabulary entity.
  */
-function pde_03_vocabulary_read() {
+function _pde_03_vocabulary_read() {
 
+}
+
+
+/**
+ * Command: delete vocabulary entity.
+ */
+function _pde_03_vocabulary_delete($vid) {
+  $wrapper = entity_metadata_wrapper('taxonomy_vocabulary', $vid);
+  $wrapper->delete();
+}
+
+
+/**
+ * Present example of entity wrapper usage.
+ */
+function _pde_03_vocabulary_wrapper_dpm($data) {
+  $wrapper = entity_metadata_wrapper('taxonomy_vocabulary', $data);
+  // Compare dpm($data) and dpm($wrapper->getPropertyInfo()).
+  // Some of the wrapper property names differ from the entity property names
+  // (database field names). The values can be different between the wrapper
+  // property and the entity property; so can the type. For example, the owner
+  // wrapper property will be a user entity wrapper whereas the uid entity
+  // property is just a numeric user ID.
+  dpm($data);                            // stdClass
+  dpm($wrapper);                         // EntityDrupalWrapper
+  dpm($wrapper->getPropertyInfo());
 }
