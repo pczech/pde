@@ -157,20 +157,27 @@ function pde_03_file_read($fid = 1) {
   // No access via wrapper!
   // dpm($wrapper->status);
 
-  dpm('Trying to update name...');
-  // setter_callback are not set so, properties can not be written.
+  dpm('Updating status...');
+  $wrapper->value()->status = 0;
+
+  dpm('Updating name...');
+  // setter_callback are not set so the property can not be written.
   // $wrapper->name = 'helloworld1.txt';
 
-  // Although it is possible to update the name directly:
-  $wrapper->value()->name = 'helloworld1.txt';
-  $tmp1 = $wrapper->name->value();
-  $tmp2 = $wrapper->value()->name;
-  dpm($tmp1);              // 'helloworld.txt'
+  // It is possible to update the name directly.
+  // Warning! The entity property name is different for file name.
+  $wrapper->value()->filename = 'helloworld1.txt';
+  // Verify the result.
+  $tmp1 = $wrapper->value()->filename;
+  $tmp2 = $wrapper->name->value();
+  dpm($tmp1);              // 'helloworld1.txt'
   dpm($tmp2);              // 'helloworld1.txt'
 
-  // The new value will not be saved.
-  // @todo Check how it works.
   $wrapper->save();
+
+  // Check the result.
+  $entity = entity_load_unchanged('file', $fid);
+  dpm($entity);
 
   // Alternative way - directly via entity?
   // $entity = entity_load_unchanged('file', $fid);
