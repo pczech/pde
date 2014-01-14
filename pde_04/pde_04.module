@@ -47,6 +47,13 @@ function pde_04_menu() {
     'weight' => 1,
   );
 
+  $items['comment/update'] = array(
+    'title' => 'Update',
+    'page callback' => 'pde_04_pcb_comment_update',
+    'access callback' => TRUE,
+    'weight' => 2,
+  );
+
   return $items;
 }
 
@@ -123,6 +130,18 @@ function pde_04_pcb_comment_read($cid = 1) {
 
 
 /**
+ * Page callback: update comment entity.
+ */
+function pde_04_pcb_comment_update($cid = 1) {
+  pde_trace_funct();
+
+  // Wrapper will be created using comment entity id.
+  _pde_04_comment_update($cid);
+  return 'Done';
+}
+
+
+/**
  * Present example of entity wrapper usage.
  */
 function _pde_04_comment_wrapper_dpm($data) {
@@ -148,7 +167,42 @@ function _pde_04_comment_wrapper_dpm($data) {
   dpm('comment_body (field)');
   dpm($wrapper->value()->comment_body);
   dpm($wrapper->comment_body);           // EntityStructureWrapper
-  dpm($wrapper->comment_body->value());
+  dpm($wrapper->comment_body->value());  // Array
+  dpm($wrapper->comment_body->raw());    // Array
   dpm($wrapper->comment_body->value);    // EntityValueWrapper
   dpm($wrapper->comment_body->value->value());
+
+  dpm('user');
+  // dpm($wrapper->value()->author);
+  dpm($wrapper->author);                 // EntityDrupalWrapper
+  dpm($wrapper->author->value());        // stdClass
+  dpm($wrapper->author->raw());          // uid
+  dpm($wrapper->author->name);           // EntityValueWrapper
+  dpm($wrapper->author->name->value());
+
+  // !!!!
+  dpm('node');
+  // dpm($wrapper->value()->node);
+  dpm($wrapper->node);                   // EntityDrupalWrapper
+  dpm($wrapper->node->value());          // stdClass
+  dpm($wrapper->node->raw());            // nid
+  dpm($wrapper->node->author);           // EntityDrupalWrapper
+  dpm($wrapper->node->author->value());  // stdClass
+  dpm($wrapper->node->author->raw());    // uid
+  dpm($wrapper->node->author->name);     // EntityValueWrapper
+  dpm($wrapper->node->author->name->value());
+}
+
+
+/**
+ * Command: update comment.
+ */
+function _pde_04_comment_update($cid) {
+  $wrapper = entity_metadata_wrapper('comment', $cid);
+  // Change comment author to user1
+  $wrapper->author = 9;
+  $wrapper->save();
+  // Change also related node author  (!!!)
+  $wrapper->node->author = 9;
+  $wrapper->node->save();
 }
