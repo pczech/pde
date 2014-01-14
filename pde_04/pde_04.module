@@ -54,6 +54,34 @@ function pde_04_menu() {
     'weight' => 2,
   );
 
+  $items['terment'] = array(
+    'title' => 'Term entities',
+    'page callback' => 'pde_04_pcb_terment_info',
+    'access callback' => TRUE,
+    'weight' => 3,
+  );
+
+  $items['terment/create'] = array(
+    'title' => 'Create',
+    'page callback' => 'pde_04_pcb_terment_create',
+    'access callback' => TRUE,
+    'weight' => 1,
+  );
+
+  $items['terment/read'] = array(
+    'title' => 'Read',
+    'page callback' => 'pde_04_pcb_terment_read',
+    'access callback' => TRUE,
+    'weight' => 2,
+  );
+
+  $items['terment/update'] = array(
+    'title' => 'Update',
+    'page callback' => 'pde_04_pcb_terment_update',
+    'access callback' => TRUE,
+    'weight' => 3,
+  );
+
   return $items;
 }
 
@@ -205,4 +233,147 @@ function _pde_04_comment_update($cid) {
   // Change also related node author  (!!!)
   $wrapper->node->author = 9;
   $wrapper->node->save();
+}
+
+
+/**
+ * Show info page for Term Entity menu.
+ */
+function pde_04_pcb_terment_info() {
+  pde_trace_funct();
+
+  return t('Select term entity action from menu.');
+}
+
+
+/**
+ * Page callback: create term entity.
+ */
+function pde_04_pcb_terment_create($term) {
+  pde_trace_funct();
+
+  _pde_04_term_create($term);
+  return 'Done';
+}
+
+
+/**
+ * Page callback: read term entity.
+ */
+function pde_04_pcb_terment_read($tid = 1) {
+  pde_trace_funct();
+
+  // Wrapper will be created using term entity id.
+  _pde_04_term_read($tid);
+  return 'Done';
+}
+
+
+/**
+ * Page callback: update term entity.
+ */
+function pde_04_pcb_terment_update($tid = 1) {
+  pde_trace_funct();
+
+  // Wrapper will be created using term entity id.
+  _pde_04_term_update($tid);
+  return 'Done';
+}
+
+/**
+ * Command: create term.
+ */
+function _pde_04_term_create($term) {
+  if (empty($term)) {
+    return;
+  }
+
+  // Still don't know if wrapper or entity properties shall be
+  // used for entity_create()...
+  // Here parent is wrapper property and vid is entity property...
+  // parent is required as two tables are used to store term data:
+  // term
+  $data = array(
+    'name' => 'dupa',
+    'vid' => 1,                          // Tags vocabulary
+    //'parent' => array(0),
+  );
+  // taxonomy_term_save((object)$data);
+  $entity = entity_create('taxonomy_term', $data);
+  entity_save('taxonomy_term', $entity);
+  //dpm($entity);
+  //$wrapper = entity_metadata_wrapper('taxonomy_term', $entity);
+  //dpm($wrapper);
+
+}
+
+
+/**
+ * Command: Read term.
+ */
+function _pde_04_term_read($data) {
+  $wrapper = entity_metadata_wrapper('taxonomy_term', $data);
+  // Compare dpm($data) and dpm($wrapper->getPropertyInfo()).
+  // Some of the wrapper property names differ from the entity property names
+  // (database field names). The values can be different between the wrapper
+  // property and the entity property; so can the type. For example, the owner
+  // wrapper property will be a user entity wrapper whereas the uid entity
+  // property is just a numeric user ID.
+  dpm($data);                            // stdClass.
+  dpm($wrapper);                         // EntityDrupalWrapper
+  dpm($wrapper->getPropertyInfo());
+
+  // Accessing wrapper properties and corresponding entity fields:
+  dpm($wrapper->value());                // stdClass (file object)
+
+  /*
+  dpm('subject');
+  dpm($wrapper->value()->subject);
+  dpm($wrapper->subject);                // EntityValueWrapper
+  dpm($wrapper->subject->value());
+
+  dpm('comment_body (field)');
+  dpm($wrapper->value()->comment_body);
+  dpm($wrapper->comment_body);           // EntityStructureWrapper
+  dpm($wrapper->comment_body->value());  // Array
+  dpm($wrapper->comment_body->raw());    // Array
+  dpm($wrapper->comment_body->value);    // EntityValueWrapper
+  dpm($wrapper->comment_body->value->value());
+
+  dpm('user');
+  // dpm($wrapper->value()->author);
+  dpm($wrapper->author);                 // EntityDrupalWrapper
+  dpm($wrapper->author->value());        // stdClass
+  dpm($wrapper->author->raw());          // uid
+  dpm($wrapper->author->name);           // EntityValueWrapper
+  dpm($wrapper->author->name->value());
+
+  // !!!!
+  dpm('node');
+  // dpm($wrapper->value()->node);
+  dpm($wrapper->node);                   // EntityDrupalWrapper
+  dpm($wrapper->node->value());          // stdClass
+  dpm($wrapper->node->raw());            // nid
+  dpm($wrapper->node->author);           // EntityDrupalWrapper
+  dpm($wrapper->node->author->value());  // stdClass
+  dpm($wrapper->node->author->raw());    // uid
+  dpm($wrapper->node->author->name);     // EntityValueWrapper
+  dpm($wrapper->node->author->name->value());
+  */
+}
+
+
+/**
+ * Command: update term.
+ */
+function _pde_04_term_update($tid) {
+  $wrapper = entity_metadata_wrapper('taxonomy_term', $tid);
+  /*
+  // Change comment author to user1
+  $wrapper->author = 9;
+  $wrapper->save();
+  // Change also related node author  (!!!)
+  $wrapper->node->author = 9;
+  $wrapper->node->save();
+  */
 }

@@ -6,6 +6,7 @@ entity_get_info
 Entity API
 ----------
 entity_create
+entity_delete
 entity_get_property_info
 entity_load_unchanged
 entity_metadata_wrapper
