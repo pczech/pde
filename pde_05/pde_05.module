@@ -1,0 +1,181 @@
+<?php
+
+/**
+ * @file
+ * Contains example code demonstrating topics covered in Chapter 5.
+ */
+
+// @ignore sniffer_squiz_commenting_poststatementcomment_found:file
+// @ignore sniffer_commenting_inlinecomment_spacingafter:file
+// @ignore sniffer_commenting_inlinecomment_invalidendchar:file
+
+module_load_include('inc', 'pde', 'includes/tools');
+
+/**
+ * Implements hook_menu().
+ */
+function pde_05_menu() {
+  pde_trace_funct();
+
+  $items = array();
+
+  $items['fields'] = array(
+    'title' => 'Fields',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('pde_05_form_entity_read'),
+    'access callback' => TRUE,
+  );
+
+  $items['fields/%/%'] = array(
+    'title' => 'Fields',
+    'page callback' => 'pde_05_pcb_entity_read',
+    'page arguments' => array(1, 2),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+    );
+
+  return $items;
+}
+
+
+/**
+ * Form 'Entity read' constructor.
+ */
+function pde_05_form_entity_read($form, &$form_state) {
+  pde_trace_funct();
+
+  $form['type'] = array(
+    '#type' => 'select',
+    '#title' => t('Entity type'),
+    '#options' => _pde_05_get_entity_select_options(),
+    '#description' => t('Select entity type.'),
+  );
+
+  $form['id'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Entity id'),
+    '#maxlength' => 10,
+    '#size' => 5,
+    '#element_validate' => array('element_validate_number'),
+  );
+
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => t('Read'),
+  );
+
+  return $form;
+}
+
+
+/**
+ * Form 'Entity read' submit handler.
+ */
+function pde_05_form_entity_read_submit($form, &$form_state) {
+  pde_trace_funct();
+
+  $type = $form_state['values']['type'];
+  $id = $form_state['values']['id'];
+
+  $form_state['redirect'] = "fields/$type/$id";
+}
+
+
+/**
+ * Page callback: read entity of given type and id.
+ */
+function pde_05_pcb_entity_read($type = NULL, $id = NULL) {
+  pde_trace_funct();
+
+  if (!array_key_exists($type, entity_get_info())) {
+    return 'Please use the following path: /read/ENTITY/ID, for example /read/user/1';
+  }
+
+  $wrapper = entity_metadata_wrapper($type, $id);
+
+  //_pde_05_entity_dpm($wrapper);
+
+  return $output = '<pre>' . _pde_05_entity_read($type, $wrapper) . '</pre>';
+}
+
+
+/**
+ * Dump properties and thier values of given entity wrapper.
+ */
+function _pde_05_entity_read($name, $wrapper, $level = 0) {
+  // Intendation
+  $output = '';
+
+  if ($wrapper instanceof EntityDrupalWrapper) {
+    $output .= _pde_05_property_hdr($name, $wrapper, $level);
+
+    // Check if the wrapped data exists. It may happen, that although wrapper
+    // exists and can be iterated through its properties, the wrapped data
+    // doesn't exist. Then $wrapper->value() throws exception.
+    // It occurs for example if 'parent' property if not set for comment entity.
+    if (is_object($wrapper->value()) || is_array($wrapper->value())) {
+      $output .= '</br>';
+      foreach ($wrapper as $prop_name => $prop_val) {
+        $output .= _pde_05_entity_read($prop_name, $prop_val, ($level+1)*2);
+      }
+    }
+    else {
+      $output .= ': ' . 'NULL</br>';
+    }
+  }
+  elseif ($wrapper instanceof EntityStructureWrapper) {
+    dpm($name . ':');
+    dpm($wrapper->value());
+  foreach ($wrapper as $prop_name => $prop_val) {
+        dpm($prop_name);
+        dpm($prop_val);
+      }
+  }
+  elseif ($wrapper instanceof EntityValueWrapper) {
+    $output .= _pde_05_property_hdr($name, $wrapper, $level);
+    $output .= ': ' . $wrapper->value() . '</br>';
+  }
+  else {
+    $output .= _pde_05_property_hdr($name, $wrapper, $level);
+    $output .= 'NOT SUPPORTED' . '</br>';
+  }
+
+  //dpm($output);
+
+  return $output;
+}
+
+function _pde_05_property_hdr($name, $wrapper, $level) {
+  $output = str_pad('', $level) . $name . ' (' .get_class($wrapper) . ')';
+  $output = str_pad($output, $level + 40);
+  return $output;
+}
+
+
+/**
+ * Verify entity of given type and id.
+ */
+function _pde_05_entity_dpm($wrapper) {
+  if ($wrapper instanceof EntityDrupalWrapper) {
+    foreach($wrapper as $property_name => $property_value) {
+      dpm($property_name);
+      dpm($property_value);
+    }
+  }
+}
+
+/**
+ * Create array of entities' labels keyed by entity type.
+ *
+ * The array is used to fill '#options' parameter of entity 'select' element
+ * in forms.
+ */
+function _pde_05_get_entity_select_options() {
+  $entities = entity_get_info();
+  $options = array();
+  foreach ($entities as $type => $data) {
+    $options[$type] = $data['label'];
+  }
+
+  return $options;
+}
