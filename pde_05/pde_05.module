@@ -103,41 +103,40 @@ function pde_05_pcb_entity_read($type = NULL, $id = NULL) {
  * Dump properties and thier values of given entity wrapper.
  */
 function _pde_05_entity_read($name, $wrapper, $level = 0) {
-  // Intendation
   $output = '';
 
-  if ($wrapper instanceof EntityDrupalWrapper) {
+  // EntityDrupalWrapper - entity wrapped up
+  // EntityListWrapper - array of wrappers (multivalue field/property)
+  // EntityStructureWrapper - wraps anything that isn't an entity and
+  // has more than one property.
+  // EntityValueWrapper - wraps a single value
+  if ($wrapper instanceof EntityDrupalWrapper ||
+      $wrapper instanceof EntityStructureWrapper ||
+      $wrapper instanceof EntityListWrapper) {
     $output .= _pde_05_property_hdr($name, $wrapper, $level);
 
     // Check if the wrapped data exists. It may happen, that although wrapper
     // exists and can be iterated through its properties, the wrapped data
     // doesn't exist. Then $wrapper->value() throws exception.
     // It occurs for example if 'parent' property if not set for comment entity.
-    if (is_object($wrapper->value()) || is_array($wrapper->value())) {
+    if (is_object($wrapper->value()) ||
+        is_array($wrapper->value())) {
       $output .= '</br>';
-      foreach ($wrapper as $prop_name => $prop_val) {
-        $output .= _pde_05_entity_read($prop_name, $prop_val, ($level+1)*2);
+      foreach ($wrapper as $key => $property) {
+        $output .= _pde_05_entity_read($key, $property, $level+3);
       }
     }
     else {
-      $output .= ': ' . 'NULL</br>';
+      $output .= ': ' . 'NULL' . '</br>';
     }
-  }
-  elseif ($wrapper instanceof EntityStructureWrapper) {
-    dpm($name . ':');
-    dpm($wrapper->value());
-  foreach ($wrapper as $prop_name => $prop_val) {
-        dpm($prop_name);
-        dpm($prop_val);
-      }
   }
   elseif ($wrapper instanceof EntityValueWrapper) {
     $output .= _pde_05_property_hdr($name, $wrapper, $level);
-    $output .= ': ' . $wrapper->value() . '</br>';
+    $output .= ': ' . $wrapper->value(array('decode' => TRUE)) . '</br>';
   }
   else {
     $output .= _pde_05_property_hdr($name, $wrapper, $level);
-    $output .= 'NOT SUPPORTED' . '</br>';
+    $output .= ': ' . 'UNKNOWN' . '</br>';
   }
 
   //dpm($output);
@@ -150,7 +149,7 @@ function _pde_05_property_hdr($name, $wrapper, $level) {
   $output = str_pad($output, $level + 40);
   return $output;
 }
-
+Nie działa term entities read?
 
 /**
  * Verify entity of given type and id.
