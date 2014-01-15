@@ -7,6 +7,7 @@ Entity API
 ----------
 entity_create
 entity_delete
+entity_save
 entity_get_property_info
 entity_load_unchanged
 entity_metadata_wrapper
@@ -22,6 +23,7 @@ module_load_include
 file_unmanaged_save_data
 file_save_data
 
+taxonomy_term_save
 taxonomy_vocabulary_get_names
 taxonomy_vocabulary_save
 taxonomy_vocabulary_machine_name_load

@@ -208,7 +208,7 @@ function _pde_04_comment_wrapper_dpm($data) {
   dpm($wrapper->author->name);           // EntityValueWrapper
   dpm($wrapper->author->name->value());
 
-  // !!!!
+  // !!!
   dpm('node');
   // dpm($wrapper->value()->node);
   dpm($wrapper->node);                   // EntityDrupalWrapper
@@ -249,10 +249,10 @@ function pde_04_pcb_terment_info() {
 /**
  * Page callback: create term entity.
  */
-function pde_04_pcb_terment_create($term) {
+function pde_04_pcb_terment_create() {
   pde_trace_funct();
 
-  _pde_04_term_create($term);
+  _pde_04_term_create();
   return 'Done';
 }
 
@@ -283,28 +283,23 @@ function pde_04_pcb_terment_update($tid = 1) {
 /**
  * Command: create term.
  */
-function _pde_04_term_create($term) {
-  if (empty($term)) {
-    return;
-  }
-
-  // Still don't know if wrapper or entity properties shall be
-  // used for entity_create()...
-  // Here parent is wrapper property and vid is entity property...
-  // parent is required as two tables are used to store term data:
-  // term
+function _pde_04_term_create() {
+  // Still don't know if wrapper or entity properties shall be used for
+  // entity_create()... It seems that parameters used by traditional creation
+  // functions shall be used. See taxonomy_term_save().
   $data = array(
-    'name' => 'dupa',
+    'name' => '',
     'vid' => 1,                          // Tags vocabulary
-    //'parent' => array(0),
   );
-  // taxonomy_term_save((object)$data);
-  $entity = entity_create('taxonomy_term', $data);
-  entity_save('taxonomy_term', $entity);
-  //dpm($entity);
-  //$wrapper = entity_metadata_wrapper('taxonomy_term', $entity);
-  //dpm($wrapper);
 
+  $data['name'] = 'Asia';
+  $term = entity_create('taxonomy_term', $data);
+  entity_save('taxonomy_term', $term);
+
+  $data['name'] = 'Europa';
+  $term = entity_create('taxonomy_term', $data);
+  $wrapper = entity_metadata_wrapper('taxonomy_term', $term);
+  $wrapper->save();
 }
 
 
@@ -326,40 +321,25 @@ function _pde_04_term_read($data) {
   // Accessing wrapper properties and corresponding entity fields:
   dpm($wrapper->value());                // stdClass (file object)
 
-  /*
-  dpm('subject');
-  dpm($wrapper->value()->subject);
-  dpm($wrapper->subject);                // EntityValueWrapper
-  dpm($wrapper->subject->value());
+  dpm('vocabulary');
+  // dpm($wrapper->value()->vocabulary);
+  dpm($wrapper->vocabulary);                // EntityDrupalWrapper
+  dpm($wrapper->vocabulary->value());       // stdClass
+  dpm($wrapper->vocabulary->raw());
+  dpm($wrapper->vocabulary->name);          // EntityValueWrapper
+  dpm($wrapper->vocabulary->name->value());
 
-  dpm('comment_body (field)');
-  dpm($wrapper->value()->comment_body);
-  dpm($wrapper->comment_body);           // EntityStructureWrapper
-  dpm($wrapper->comment_body->value());  // Array
-  dpm($wrapper->comment_body->raw());    // Array
-  dpm($wrapper->comment_body->value);    // EntityValueWrapper
-  dpm($wrapper->comment_body->value->value());
-
-  dpm('user');
-  // dpm($wrapper->value()->author);
-  dpm($wrapper->author);                 // EntityDrupalWrapper
-  dpm($wrapper->author->value());        // stdClass
-  dpm($wrapper->author->raw());          // uid
-  dpm($wrapper->author->name);           // EntityValueWrapper
-  dpm($wrapper->author->name->value());
-
-  // !!!!
-  dpm('node');
-  // dpm($wrapper->value()->node);
-  dpm($wrapper->node);                   // EntityDrupalWrapper
-  dpm($wrapper->node->value());          // stdClass
-  dpm($wrapper->node->raw());            // nid
-  dpm($wrapper->node->author);           // EntityDrupalWrapper
-  dpm($wrapper->node->author->value());  // stdClass
-  dpm($wrapper->node->author->raw());    // uid
-  dpm($wrapper->node->author->name);     // EntityValueWrapper
-  dpm($wrapper->node->author->name->value());
-  */
+  // !!!
+  dpm('parent');
+  // dpm($wrapper->value()->parent);
+  dpm($wrapper->parent);                    // EntityListWrapper
+  dpm($wrapper->parent->value());           // Array
+  dpm($wrapper->parent[0]);                 // EntityDrupalWrapper
+  dpm($wrapper->parent[0]->getPropertyInfo());
+  dpm($wrapper->parent[0]->name);
+  dpm($wrapper->parent[0]->name->value());
+  dpm($wrapper->parent[0]->vocabulary);     // EntityDrupalWrapper
+  dpm($wrapper->parent[0]->vocabulary->name->value());
 }
 
 
@@ -368,12 +348,8 @@ function _pde_04_term_read($data) {
  */
 function _pde_04_term_update($tid) {
   $wrapper = entity_metadata_wrapper('taxonomy_term', $tid);
-  /*
-  // Change comment author to user1
-  $wrapper->author = 9;
+
+  // Clear the parent. Prepare the valid data before.
+  $wrapper->parent = array(0);
   $wrapper->save();
-  // Change also related node author  (!!!)
-  $wrapper->node->author = 9;
-  $wrapper->node->save();
-  */
 }
