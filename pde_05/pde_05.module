@@ -32,7 +32,7 @@ function pde_05_menu() {
     'page arguments' => array(1, 2),
     'access callback' => TRUE,
     'type' => MENU_CALLBACK,
-    );
+  );
 
   return $items;
 }
@@ -92,9 +92,6 @@ function pde_05_pcb_entity_read($type = NULL, $id = NULL) {
   }
 
   $wrapper = entity_metadata_wrapper($type, $id);
-
-  //_pde_05_entity_dpm($wrapper);
-
   return $output = '<pre>' . _pde_05_entity_read($type, $wrapper) . '</pre>';
 }
 
@@ -102,14 +99,14 @@ function pde_05_pcb_entity_read($type = NULL, $id = NULL) {
 /**
  * Dump properties and thier values of given entity wrapper.
  */
-function _pde_05_entity_read($name, $wrapper, $level = 0) {
+function _pde_05_entity_read($name, $wrapper, $level = 0, $stack = array()) {
   $output = '';
 
-  // EntityDrupalWrapper - entity wrapped up
-  // EntityListWrapper - array of wrappers (multivalue field/property)
-  // EntityStructureWrapper - wraps anything that isn't an entity and
-  // has more than one property.
-  // EntityValueWrapper - wraps a single value
+  // If loop return!
+  if (_pde_05_entity_read_loop($wrapper, $stack)) {
+    return str_pad('', $level) . 'LOOP</br>';
+  }
+
   if ($wrapper instanceof EntityDrupalWrapper ||
       $wrapper instanceof EntityStructureWrapper ||
       $wrapper instanceof EntityListWrapper) {
@@ -118,50 +115,64 @@ function _pde_05_entity_read($name, $wrapper, $level = 0) {
     // Check if the wrapped data exists. It may happen, that although wrapper
     // exists and can be iterated through its properties, the wrapped data
     // doesn't exist. Then $wrapper->value() throws exception.
-    // It occurs for example if 'parent' property if not set for comment entity.
+    // It occurs for example if 'parent' property is not set for comment entity.
     if (is_object($wrapper->value()) ||
         is_array($wrapper->value())) {
       $output .= '</br>';
       foreach ($wrapper as $key => $property) {
-        $output .= _pde_05_entity_read($key, $property, $level+3);
+        $output .= _pde_05_entity_read($key, $property, $level + 3, $stack);
       }
     }
     else {
-      $output .= ': ' . 'NULL' . '</br>';
+      $output .= 'NULL</br>';
     }
   }
   elseif ($wrapper instanceof EntityValueWrapper) {
     $output .= _pde_05_property_hdr($name, $wrapper, $level);
-    $output .= ': ' . $wrapper->value(array('decode' => TRUE)) . '</br>';
+    $output .= $wrapper->value(array('decode' => TRUE)) . '</br>';
   }
   else {
     $output .= _pde_05_property_hdr($name, $wrapper, $level);
-    $output .= ': ' . 'UNKNOWN' . '</br>';
+    $output .= 'UNKNOWN</br>';
   }
 
-  //dpm($output);
-
+  // dpm($output);
   return $output;
 }
 
-function _pde_05_property_hdr($name, $wrapper, $level) {
-  $output = str_pad('', $level) . $name . ' (' .get_class($wrapper) . ')';
-  $output = str_pad($output, $level + 40);
-  return $output;
-}
-Nie działa term entities read?
 
 /**
- * Verify entity of given type and id.
+ * Render common header.
+ *
+ * Helper of _pde_05_entity_read.
  */
-function _pde_05_entity_dpm($wrapper) {
-  if ($wrapper instanceof EntityDrupalWrapper) {
-    foreach($wrapper as $property_name => $property_value) {
-      dpm($property_name);
-      dpm($property_value);
-    }
-  }
+function _pde_05_property_hdr($name, $wrapper, $level) {
+  $output = str_pad('', $level) . $name . ' (' . get_class($wrapper) . ')';
+  $output = str_pad($output, $level + 40);
+  $output .= ': ';
+  return $output;
 }
+
+/**
+ * Catch the loops in resursive entity read algorithm.
+ *
+ * Helper of _pde_05_entity_read.
+ * 'parent_all' property of taxonomy_term wrapper contains the entire term
+ * path to the vocabulary root including the term itself. It leeds to endless
+ * recursive loop. The function recognizes such situations.
+ */
+function _pde_05_entity_read_loop($wrapper, &$stack) {
+  if ($wrapper instanceof EntityDrupalWrapper) {
+    $entity = $wrapper->value();
+    if (in_array($entity, $stack, TRUE)) {
+      return TRUE;
+    }
+
+    $stack[] = $entity;
+  }
+  return FALSE;
+}
+
 
 /**
  * Create array of entities' labels keyed by entity type.

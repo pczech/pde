@@ -330,16 +330,28 @@ function _pde_04_term_read($data) {
   dpm($wrapper->vocabulary->name->value());
 
   // !!!
+  // Prepare a term which has a parent first, for example:
+  // term/1 - Manager
+  // term/2 - Team1 (has parent Manager)
   dpm('parent');
   // dpm($wrapper->value()->parent);
   dpm($wrapper->parent);                    // EntityListWrapper
-  dpm($wrapper->parent->value());           // Array
-  dpm($wrapper->parent[0]);                 // EntityDrupalWrapper
-  dpm($wrapper->parent[0]->getPropertyInfo());
-  dpm($wrapper->parent[0]->name);
-  dpm($wrapper->parent[0]->name->value());
-  dpm($wrapper->parent[0]->vocabulary);     // EntityDrupalWrapper
-  dpm($wrapper->parent[0]->vocabulary->name->value());
+  dpm($wrapper->parent->value());           // Array or empty
+  if (is_array($wrapper->parent)) {
+    dpm($wrapper->parent[0]);                 // EntityDrupalWrapper
+    dpm($wrapper->parent[0]->getPropertyInfo());
+    dpm($wrapper->parent[0]->name);
+    dpm($wrapper->parent[0]->name->value());
+    dpm($wrapper->parent[0]->vocabulary);     // EntityDrupalWrapper
+    dpm($wrapper->parent[0]->vocabulary->name->value());
+  }
+
+  // Warining, parents_all includes this term itself!
+  dpm('parents_all');
+  // dpm($wrapper->value()->parent);
+  dpm($wrapper->parents_all);               // EntityListWrapper
+  dpm($wrapper->parents_all->value());          // Array or empty
+  //dpm($wrapper->parents[0]);                 // EntityDrupalWrapper
 }
 
 
