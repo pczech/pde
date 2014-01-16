@@ -111,27 +111,61 @@ function pde_04_pcb_nodent_read($nid = 1) {
 /**
  * Present example of entity wrapper usage.
  */
-function _pde_04_node_wrapper_dpm($data) {
-  $wrapper = entity_metadata_wrapper('node', $data);
-  // Compare dpm($data) and dpm($wrapper->getPropertyInfo()).
+function _pde_04_node_wrapper_dpm($nid) {
+  $wrapper = entity_metadata_wrapper('node', $nid);
+  // Compare dpm($nid) and dpm($wrapper->getPropertyInfo()).
   // Some of the wrapper property names differ from the entity property names
   // (database field names). The values can be different between the wrapper
   // property and the entity property; so can the type. For example, the owner
   // wrapper property will be a user entity wrapper whereas the uid entity
   // property is just a numeric user ID.
-  dpm($data);                            // stdClass.
-  dpm($wrapper);                         // EntityDrupalWrapper
-  dpm($wrapper->getPropertyInfo());
+
+  $data = array();
+  $data[] = 'nid';
+  $data[] = '$wrapper->getPropertyInfo()';
+  dpm($$data[0], $data[0]);
+  dpm($$data[1], $data[1]);
+
+  TODO
+
+  dpm('DONE');
+  dpm($nid, 'nid');
+  // EntityDrupalWrapper
+  dpm($wrapper, 'wrapper');
+  dpm($wrapper->getPropertyInfo(), 'wrapper->getPropertyInfo()');
 
   // Accessing wrapper properties and corresponding entity fields:
-  dpm($wrapper->value());                // stdClass (file object)
-
-  dpm('body (field)');
-  dpm($wrapper->value()->body);
-  dpm($wrapper->body);                   // EntityStructureWrapper
-  dpm($wrapper->body->value());
-  dpm($wrapper->body->value);            // EntityValueWrapper
+  // stdClass (node object)
+  dpm($wrapper->value(), 'wrapper->value()');
+  // Accessing fields
+  dpm($wrapper->value()->body, 'wrapper->value()->body');
+  // EntityStructureWrapper
+  dpm($wrapper->body, 'wrapper->body');
+  $d = '$wrapper->body->value()'; dpm($$d, $d);
+  // EntityValueWrapper
+  dpm('DONE');
+  dpm($wrapper->body->value);
   dpm($wrapper->body->value->value());
+
+  dpm('field_tags (field)');
+  dpm($wrapper->value()->field_tags);
+  dpm($wrapper->field_tags);             // EntityStructureWrapper
+  dpm($wrapper->field_tags->value());    // Array of term objects
+  dpm($wrapper->field_tags[0]->getPropertyInfo());
+
+  dpm('field_file (field)');
+  dpm($wrapper->value()->field_file);
+  dpm($wrapper->field_file);             // EntityStructureWrapper
+  dpm($wrapper->field_file->value());    // Array
+
+  // Standard mechanism for comparison.
+  dpm('node_load');
+  $node = node_load($nid);
+  dpm($node);
+
+  dpm('entity_load');
+  $node = entity_load('node', array($nid));
+  dpm($node);
 }
 
 
@@ -198,7 +232,6 @@ function _pde_04_comment_wrapper_dpm($data) {
   dpm($wrapper->comment_body->value());  // Array
   dpm($wrapper->comment_body->raw());    // Array
   dpm($wrapper->comment_body->value);    // EntityValueWrapper
-  dpm($wrapper->comment_body->value->value());
 
   dpm('user');
   // dpm($wrapper->value()->author);

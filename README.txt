@@ -23,6 +23,8 @@ module_load_include
 file_unmanaged_save_data
 file_save_data
 
+node_load
+
 taxonomy_term_save
 taxonomy_vocabulary_get_names
 taxonomy_vocabulary_save
