@@ -119,53 +119,68 @@ function _pde_04_node_wrapper_dpm($nid) {
   // property and the entity property; so can the type. For example, the owner
   // wrapper property will be a user entity wrapper whereas the uid entity
   // property is just a numeric user ID.
-
-  $data = array();
-  $data[] = 'nid';
-  $data[] = '$wrapper->getPropertyInfo()';
-  dpm($$data[0], $data[0]);
-  dpm($$data[1], $data[1]);
-
-  TODO
-
-  dpm('DONE');
   dpm($nid, 'nid');
   // EntityDrupalWrapper
   dpm($wrapper, 'wrapper');
+  dpm($wrapper->type(), 'wrapper->type()');
+  dpm($wrapper->label(), 'wrapper->label()');
   dpm($wrapper->getPropertyInfo(), 'wrapper->getPropertyInfo()');
-
-  // Accessing wrapper properties and corresponding entity fields:
-  // stdClass (node object)
   dpm($wrapper->value(), 'wrapper->value()');
+  dpm($wrapper->raw(), 'wrapper->raw()');
+
   // Accessing fields
+  dpm('field: body');
   dpm($wrapper->value()->body, 'wrapper->value()->body');
+
   // EntityStructureWrapper
   dpm($wrapper->body, 'wrapper->body');
-  $d = '$wrapper->body->value()'; dpm($$d, $d);
-  // EntityValueWrapper
-  dpm('DONE');
-  dpm($wrapper->body->value);
-  dpm($wrapper->body->value->value());
+  dpm($wrapper->body->type(), 'wrapper->body->type()');
+  dpm($wrapper->body->label(), 'wrapper->body->label()');
+  dpm($wrapper->body->value(), 'wrapper->body->value()');
+  dpm($wrapper->body->raw(), 'wrapper->body->raw()');
 
-  dpm('field_tags (field)');
-  dpm($wrapper->value()->field_tags);
-  dpm($wrapper->field_tags);             // EntityStructureWrapper
-  dpm($wrapper->field_tags->value());    // Array of term objects
-  dpm($wrapper->field_tags[0]->getPropertyInfo());
+  // Accessing field properties
+  dpm($wrapper->body->value, 'wrapper->body->value');
+  dpm($wrapper->body->value->type(), 'wrapper->body->value->type()');
+  dpm($wrapper->body->value->label(), 'wrapper->body->value->label()');
+  dpm($wrapper->body->value->value(), 'wrapper->body->value->value()');
+  dpm($wrapper->body->value->raw(), 'wrapper->body->value->raw()');
 
-  dpm('field_file (field)');
-  dpm($wrapper->value()->field_file);
-  dpm($wrapper->field_file);             // EntityStructureWrapper
-  dpm($wrapper->field_file->value());    // Array
+  dpm('field: field_tags');
+  dpm($wrapper->value()->field_tags, 'wrapper->value()->field_tags');
+
+  // EntityListWrapper
+  dpm($wrapper->field_tags, 'wrapper->field_tags');
+  dpm($wrapper->field_tags->type(), 'wrapper->field_tags->type()');
+  dpm($wrapper->field_tags->label(), 'wrapper->field_tags->label()');
+  dpm($wrapper->field_tags->value(), 'wrapper->field_tags->value()');
+  dpm($wrapper->field_tags->raw(), 'wrapper->field_tags->raw()');
+  // field_tags is array od EntityDrupalWrapper objects
+  dpm($wrapper->field_tags[0], 'wrapper->field_tags[0]');
+  dpm($wrapper->field_tags[0]->getPropertyInfo(),
+    'wrapper->field_tags[0]->getPropertyInfo()');
+
+  dpm('field: field_file');
+  dpm($wrapper->value()->field_file, 'wrapper->value()->field_file');
+
+  // EntityStructureWrapper
+  dpm($wrapper->field_file, 'wrapper->field_file');
+  dpm($wrapper->field_file->type(), 'wrapper->field_file->type()');
+  dpm($wrapper->field_file->label(), 'wrapper->field_file->label()');
+  dpm($wrapper->field_file->value(), 'wrapper->field_file->value()');
+  dpm($wrapper->field_file->raw(), 'wrapper->field_file->raw()');
+
+  // Accessing field properties
+  dpm($wrapper->field_file->file, 'wrapper->field_file->file');
+  dpm($wrapper->field_file->file->type(), 'wrapper->field_file->file->type()');
+  dpm($wrapper->field_file->file->label(), 'wrapper->field_file->file->label()');
+  dpm($wrapper->field_file->file->value(), 'wrapper->field_file->file->value()');
+  dpm($wrapper->field_file->file->raw(), 'wrapper->field_file->file->raw()');
 
   // Standard mechanism for comparison.
-  dpm('node_load');
-  $node = node_load($nid);
-  dpm($node);
-
-  dpm('entity_load');
-  $node = entity_load('node', array($nid));
-  dpm($node);
+  dpm(node_load($nid), 'node_load($nid)');
+  dpm(entity_load('node', array($nid)), 'entity_load("node", array($nid))');
+  dpm(entity_load_single('node', $nid), 'entity_load_single("node", $nid)');
 }
 
 
@@ -206,52 +221,92 @@ function pde_04_pcb_comment_update($cid = 1) {
 /**
  * Present example of entity wrapper usage.
  */
-function _pde_04_comment_wrapper_dpm($data) {
-  $wrapper = entity_metadata_wrapper('comment', $data);
+function _pde_04_comment_wrapper_dpm($cid) {
+  $wrapper = entity_metadata_wrapper('comment', $cid);
   // Compare dpm($data) and dpm($wrapper->getPropertyInfo()).
   // Some of the wrapper property names differ from the entity property names
   // (database field names). The values can be different between the wrapper
   // property and the entity property; so can the type. For example, the owner
   // wrapper property will be a user entity wrapper whereas the uid entity
   // property is just a numeric user ID.
-  dpm($data);                            // stdClass.
-  dpm($wrapper);                         // EntityDrupalWrapper
-  dpm($wrapper->getPropertyInfo());
+  dpm($cid, 'cid');
+  // EntityDrupalWrapper
+  dpm($wrapper, 'wrapper');
+  dpm($wrapper->type(), 'wrapper->type()');
+  dpm($wrapper->label(), 'wrapper->label()');
+  dpm($wrapper->getPropertyInfo(), 'wrapper->getPropertyInfo()');
+  dpm($wrapper->value(), 'wrapper->value()');
+  dpm($wrapper->raw(), 'wrapper->raw()');
 
-  // Accessing wrapper properties and corresponding entity fields:
-  dpm($wrapper->value());                // stdClass (file object)
+  // Accessing properties
+  dpm('property: subject');
+  dpm($wrapper->value()->subject, '$wrapper->value()->subject');
 
-  dpm('subject');
-  dpm($wrapper->value()->subject);
-  dpm($wrapper->subject);                // EntityValueWrapper
-  dpm($wrapper->subject->value());
+  // EntityValueWrapper
+  dpm($wrapper->subject, '$wrapper->subject');
+  dpm($wrapper->subject->type(), 'wrapper->subject->type()');
+  dpm($wrapper->subject->label(), 'wrapper->subject->label()');
+  dpm($wrapper->subject->value(), 'wrapper->subject->value()');
+  dpm($wrapper->subject->raw(), 'wrapper->subject->raw()');
 
-  dpm('comment_body (field)');
-  dpm($wrapper->value()->comment_body);
-  dpm($wrapper->comment_body);           // EntityStructureWrapper
-  dpm($wrapper->comment_body->value());  // Array
-  dpm($wrapper->comment_body->raw());    // Array
-  dpm($wrapper->comment_body->value);    // EntityValueWrapper
+  dpm('property: author');
+  // dpm($wrapper->value()->author, 'wrapper->value()->author');
+  // EntityDrupalWrapper
+  dpm($wrapper->author, 'wrapper->author');
+  dpm($wrapper->author->type(), 'wrapper->author->type()');
+  dpm($wrapper->author->label(), 'wrapper->author->label()');
+  dpm($wrapper->author->value(), 'wrapper->author->value()');
+  dpm($wrapper->author->raw(), 'wrapper->author->raw()');
 
-  dpm('user');
-  // dpm($wrapper->value()->author);
-  dpm($wrapper->author);                 // EntityDrupalWrapper
-  dpm($wrapper->author->value());        // stdClass
-  dpm($wrapper->author->raw());          // uid
-  dpm($wrapper->author->name);           // EntityValueWrapper
-  dpm($wrapper->author->name->value());
+  dpm($wrapper->author->name, 'wrapper->author->name');
+  dpm($wrapper->author->name->type(), 'wrapper->author->name->type()');
+  dpm($wrapper->author->name->label(), 'wrapper->author->name->label()');
+  dpm($wrapper->author->name->value(), 'wrapper->author->name->value()');
+  dpm($wrapper->author->name->raw(), 'wrapper->author->name->raw()');
 
-  // !!!
-  dpm('node');
-  // dpm($wrapper->value()->node);
-  dpm($wrapper->node);                   // EntityDrupalWrapper
-  dpm($wrapper->node->value());          // stdClass
-  dpm($wrapper->node->raw());            // nid
-  dpm($wrapper->node->author);           // EntityDrupalWrapper
-  dpm($wrapper->node->author->value());  // stdClass
-  dpm($wrapper->node->author->raw());    // uid
-  dpm($wrapper->node->author->name);     // EntityValueWrapper
-  dpm($wrapper->node->author->name->value());
+  dpm('property: node');
+  // dpm($wrapper->value()->node, 'wrapper->value()->node');
+  // EntityDrupalWrapper
+  dpm($wrapper->node, 'wrapper->node');
+  dpm($wrapper->node->type(), 'wrapper->node->type()');
+  dpm($wrapper->node->label(), 'wrapper->node->label()');
+  dpm($wrapper->node->value(), 'wrapper->node->value()');
+  dpm($wrapper->node->raw(), 'wrapper->node->raw()');
+  // EntityDrupalWrapper
+  dpm($wrapper->node->author, 'wrapper->node->author');
+  dpm($wrapper->node->author->type(), 'wrapper->node->author->type()');
+  dpm($wrapper->node->author->label(), 'wrapper->node->author->label()');
+  dpm($wrapper->node->author->value(), 'wrapper->node->author->value()');
+  dpm($wrapper->node->author->raw(), 'wrapper->node->author->raw()');
+  // EntityValueWrapper
+  dpm($wrapper->node->author->name, 'wrapper->node->author->name');
+  dpm($wrapper->node->author->name->type(), 'wrapper->node->author->name->type()');
+  dpm($wrapper->node->author->name->label(), 'wrapper->node->author->name->label()');
+  dpm($wrapper->node->author->name->value(), 'wrapper->node->author->name->value()');
+  dpm($wrapper->node->author->name->raw(), 'wrapper->node->author->name->raw()');
+
+  // Accessing fields
+  dpm('field: comment_body');
+  dpm($wrapper->value()->comment_body, 'wrapper->value()->comment_body');
+
+  // EntityStructureWrapper
+  dpm($wrapper->comment_body, 'wrapper->comment_body');
+  dpm($wrapper->comment_body->type(), 'wrapper->comment_body->type()');
+  dpm($wrapper->comment_body->label(), 'wrapper->comment_body->label()');
+  dpm($wrapper->comment_body->value(), 'wrapper->comment_body->value()');
+  dpm($wrapper->comment_body->raw(), 'wrapper->comment_body->raw()');
+
+  // Accessing field properties
+  dpm($wrapper->comment_body->value, 'wrapper->comment_body->value');
+  dpm($wrapper->comment_body->value->type(), 'wrapper->comment_body->value->type()');
+  dpm($wrapper->comment_body->value->label(), 'wrapper->comment_body->value->label()');
+  dpm($wrapper->comment_body->value->value(), 'wrapper->comment_body->value->value()');
+  dpm($wrapper->comment_body->value->raw(), 'wrapper->comment_body->value->raw()');
+
+  // Standard mechanism for comparison.
+  dpm(comment_load($cid), 'comment_load($cid)');
+  dpm(entity_load('comment', array($cid)), 'entity_load("comment", array($cid))');
+  dpm(entity_load_single('comment', $cid), 'entity_load_single("comment", $cid)');
 }
 
 
@@ -322,7 +377,7 @@ function _pde_04_term_create() {
   // functions shall be used. See taxonomy_term_save().
   $data = array(
     'name' => '',
-    'vid' => 1,                          // Tags vocabulary
+    'vid' => 1,
   );
 
   $data['name'] = 'Asia';
@@ -339,52 +394,74 @@ function _pde_04_term_create() {
 /**
  * Command: Read term.
  */
-function _pde_04_term_read($data) {
-  $wrapper = entity_metadata_wrapper('taxonomy_term', $data);
+function _pde_04_term_read($tid) {
+  $wrapper = entity_metadata_wrapper('taxonomy_term', $tid);
   // Compare dpm($data) and dpm($wrapper->getPropertyInfo()).
   // Some of the wrapper property names differ from the entity property names
   // (database field names). The values can be different between the wrapper
   // property and the entity property; so can the type. For example, the owner
   // wrapper property will be a user entity wrapper whereas the uid entity
   // property is just a numeric user ID.
-  dpm($data);                            // stdClass.
-  dpm($wrapper);                         // EntityDrupalWrapper
-  dpm($wrapper->getPropertyInfo());
 
-  // Accessing wrapper properties and corresponding entity fields:
-  dpm($wrapper->value());                // stdClass (file object)
+  dpm($tid, 'tid');
+  // EntityDrupalWrapper
+  dpm($wrapper, 'wrapper');
+  dpm($wrapper->type(), 'wrapper->type()');
+  dpm($wrapper->label(), 'wrapper->label()');
+  dpm($wrapper->getPropertyInfo(), 'wrapper->getPropertyInfo()');
+  dpm($wrapper->value(), 'wrapper->value()');
+  dpm($wrapper->raw(), 'wrapper->raw()');
 
-  dpm('vocabulary');
-  // dpm($wrapper->value()->vocabulary);
-  dpm($wrapper->vocabulary);                // EntityDrupalWrapper
-  dpm($wrapper->vocabulary->value());       // stdClass
-  dpm($wrapper->vocabulary->raw());
-  dpm($wrapper->vocabulary->name);          // EntityValueWrapper
-  dpm($wrapper->vocabulary->name->value());
+  // Accessing properties
+  dpm('property: vocabulary');
+  // dpm($wrapper->value()->vocabulary, 'wrapper->value()->vocabulary');
+
+  // EntityValueWrapper
+  dpm($wrapper->vocabulary, 'wrapper->vocabulary');
+  dpm($wrapper->vocabulary->type(), 'wrapper->vocabulary->type()');
+  dpm($wrapper->vocabulary->label(), 'wrapper->vocabulary->label()');
+  dpm($wrapper->vocabulary->value(), 'wrapper->vocabulary->value()');
+  dpm($wrapper->vocabulary->raw(), 'wrapper->vocabulary->raw()');
+
+  dpm($wrapper->vocabulary->name);
+  dpm($wrapper->vocabulary->name->type(), 'wrapper->vocabulary->name->type()');
+  dpm($wrapper->vocabulary->name->label(), 'wrapper->vocabulary->name->label()');
+  dpm($wrapper->vocabulary->name->value(), 'wrapper->vocabulary->name->value()');
+  dpm($wrapper->vocabulary->name->raw(), 'wrapper->vocabulary->name->raw()');
 
   // !!!
   // Prepare a term which has a parent first, for example:
   // term/1 - Manager
   // term/2 - Team1 (has parent Manager)
-  dpm('parent');
+  dpm('property: parent');
   // dpm($wrapper->value()->parent);
-  dpm($wrapper->parent);                    // EntityListWrapper
-  dpm($wrapper->parent->value());           // Array or empty
+
+  // EntityListWrapper
+  dpm($wrapper->parent, '$wrapper->parent');
+  dpm($wrapper->parent->type(), 'wrapper->parent->type()');
+  dpm($wrapper->parent->label(), 'wrapper->parent->label()');
+  dpm($wrapper->parent->value(), 'wrapper->parent->value()');
+  dpm($wrapper->parent->raw(), 'wrapper->parent->raw()');
+
   if (is_array($wrapper->parent)) {
-    dpm($wrapper->parent[0]);                 // EntityDrupalWrapper
-    dpm($wrapper->parent[0]->getPropertyInfo());
-    dpm($wrapper->parent[0]->name);
-    dpm($wrapper->parent[0]->name->value());
-    dpm($wrapper->parent[0]->vocabulary);     // EntityDrupalWrapper
-    dpm($wrapper->parent[0]->vocabulary->name->value());
+    // EntityDrupalWrapper
+    dpm($wrapper->parent[0], 'wrapper->parent[0]');
+    dpm($wrapper->parent[0]->getPropertyInfo(),
+      'wrapper->parent[0]->getPropertyInfo()');
+    dpm($wrapper->parent[0]->name, 'wrapper->parent[0]->name');
+    dpm($wrapper->parent[0]->name->value(), 'wrapper->parent[0]->name->value()');
+    dpm($wrapper->parent[0]->vocabulary, 'wrapper->parent[0]->vocabulary');
+    dpm($wrapper->parent[0]->vocabulary->name->value(),
+      'wrapper->parent[0]->vocabulary->name->value()');
   }
 
   // Warining, parents_all includes this term itself!
   dpm('parents_all');
-  // dpm($wrapper->value()->parent);
-  dpm($wrapper->parents_all);               // EntityListWrapper
-  dpm($wrapper->parents_all->value());          // Array or empty
-  //dpm($wrapper->parents[0]);                 // EntityDrupalWrapper
+  // dpm($wrapper->value()->parents_all);
+  // EntityListWrapper
+  dpm($wrapper->parents_all, 'wrapper->parents_all');
+  dpm($wrapper->parents_all->value(), 'wrapper->parents_all->value()');
+  dpm($wrapper->parents_all[0], 'wrapper->parents_all[0]');
 }
 
 
