@@ -19,16 +19,16 @@ function pde_05_menu() {
 
   $items = array();
 
-  $items['fields'] = array(
-    'title' => 'Fields',
+  $items['wrapper'] = array(
+    'title' => 'Wrapper',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('pde_05_form_entity_read'),
+    'page arguments' => array('pde_05_form_wrapper_read'),
     'access callback' => TRUE,
   );
 
-  $items['fields/%/%'] = array(
-    'title' => 'Fields',
-    'page callback' => 'pde_05_pcb_entity_read',
+  $items['wrapper/%/%'] = array(
+    'title' => 'Wrapper',
+    'page callback' => 'pde_05_pcb_wrapper_read',
     'page arguments' => array(1, 2),
     'access callback' => TRUE,
     'type' => MENU_CALLBACK,
@@ -39,10 +39,15 @@ function pde_05_menu() {
 
 
 /**
- * Form 'Entity read' constructor.
+ * Form 'Wrapper read' constructor.
  */
-function pde_05_form_entity_read($form, &$form_state) {
+function pde_05_form_wrapper_read($form, &$form_state) {
   pde_trace_funct();
+
+  $form['info'] = array(
+    '#type' => 'item',
+    '#title' => t('Plase create entities of available types first.'),
+  );
 
   $form['type'] = array(
     '#type' => 'select',
@@ -69,41 +74,41 @@ function pde_05_form_entity_read($form, &$form_state) {
 
 
 /**
- * Form 'Entity read' submit handler.
+ * Form 'Wrapper read' submit handler.
  */
-function pde_05_form_entity_read_submit($form, &$form_state) {
+function pde_05_form_wrapper_read_submit($form, &$form_state) {
   pde_trace_funct();
 
   $type = $form_state['values']['type'];
   $id = $form_state['values']['id'];
 
-  $form_state['redirect'] = "fields/$type/$id";
+  $form_state['redirect'] = "wrapper/$type/$id";
 }
 
 
 /**
- * Page callback: read entity of given type and id.
+ * Page callback: read entity of given type and id via wrapper.
  */
-function pde_05_pcb_entity_read($type = NULL, $id = NULL) {
+function pde_05_pcb_wrapper_read($type = NULL, $id = NULL) {
   pde_trace_funct();
 
   if (!array_key_exists($type, entity_get_info())) {
-    return 'Please use the following path: /read/ENTITY/ID, for example /read/user/1';
+    return 'Please use the following path: /wrapper/ENTITY/ID, for example /wrapper/user/1';
   }
 
   $wrapper = entity_metadata_wrapper($type, $id);
-  return $output = '<pre>' . _pde_05_entity_read($type, $wrapper) . '</pre>';
+  return $output = '<pre>' . _pde_05_wrapper_read($type, $wrapper) . '</pre>';
 }
 
 
 /**
  * Dump properties and thier values of given entity wrapper.
  */
-function _pde_05_entity_read($name, $wrapper, $level = 0, $stack = array()) {
+function _pde_05_wrapper_read($name, $wrapper, $level = 0, $stack = array()) {
   $output = '';
 
   // If loop return!
-  if (_pde_05_entity_read_loop($wrapper, $stack)) {
+  if (_pde_05_wrapper_read_loop($wrapper, $stack)) {
     return str_pad('', $level) . 'LOOP</br>';
   }
 
@@ -120,7 +125,7 @@ function _pde_05_entity_read($name, $wrapper, $level = 0, $stack = array()) {
         is_array($wrapper->value())) {
       $output .= '</br>';
       foreach ($wrapper as $key => $property) {
-        $output .= _pde_05_entity_read($key, $property, $level + 3, $stack);
+        $output .= _pde_05_wrapper_read($key, $property, $level + 3, $stack);
       }
     }
     else {
@@ -144,7 +149,7 @@ function _pde_05_entity_read($name, $wrapper, $level = 0, $stack = array()) {
 /**
  * Render common header.
  *
- * Helper of _pde_05_entity_read.
+ * Helper of _pde_05_wrapper_read.
  */
 function _pde_05_property_hdr($name, $wrapper, $level) {
   $output = str_pad('', $level) . $name . ' (' . get_class($wrapper) . ')';
@@ -156,12 +161,12 @@ function _pde_05_property_hdr($name, $wrapper, $level) {
 /**
  * Catch the loops in resursive entity read algorithm.
  *
- * Helper of _pde_05_entity_read.
+ * Helper of _pde_05_wrapper_read.
  * 'parent_all' property of taxonomy_term wrapper contains the entire term
  * path to the vocabulary root including the term itself. It leeds to endless
  * recursive loop. The function recognizes such situations.
  */
-function _pde_05_entity_read_loop($wrapper, &$stack) {
+function _pde_05_wrapper_read_loop($wrapper, &$stack) {
   if ($wrapper instanceof EntityDrupalWrapper) {
     $entity = $wrapper->value();
     if (in_array($entity, $stack, TRUE)) {

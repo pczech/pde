@@ -518,7 +518,7 @@ function pde_04_pcb_userent_read($uid = 1) {
  */
 function _pde_04_user_wrapper_dpm($uid) {
   $wrapper = entity_metadata_wrapper('user', $uid);
-  // Compare dpm($nid) and dpm($wrapper->getPropertyInfo()).
+  // Compare dpm($uid) and dpm($wrapper->getPropertyInfo()).
   // Some of the wrapper property names differ from the entity property names
   // (database field names). The values can be different between the wrapper
   // property and the entity property; so can the type. For example, the owner
@@ -532,57 +532,6 @@ function _pde_04_user_wrapper_dpm($uid) {
   dpm($wrapper->getPropertyInfo(), 'wrapper->getPropertyInfo()');
   dpm($wrapper->value(), 'wrapper->value()');
   dpm($wrapper->raw(), 'wrapper->raw()');
-
-  /*
-  // Accessing fields
-  dpm('field: body');
-  dpm($wrapper->value()->body, 'wrapper->value()->body');
-
-  // EntityStructureWrapper
-  dpm($wrapper->body, 'wrapper->body');
-  dpm($wrapper->body->type(), 'wrapper->body->type()');
-  dpm($wrapper->body->label(), 'wrapper->body->label()');
-  dpm($wrapper->body->value(), 'wrapper->body->value()');
-  dpm($wrapper->body->raw(), 'wrapper->body->raw()');
-
-  // Accessing field properties
-  dpm($wrapper->body->value, 'wrapper->body->value');
-  dpm($wrapper->body->value->type(), 'wrapper->body->value->type()');
-  dpm($wrapper->body->value->label(), 'wrapper->body->value->label()');
-  dpm($wrapper->body->value->value(), 'wrapper->body->value->value()');
-  dpm($wrapper->body->value->raw(), 'wrapper->body->value->raw()');
-
-  dpm('field: field_tags');
-  dpm($wrapper->value()->field_tags, 'wrapper->value()->field_tags');
-
-  // EntityListWrapper
-  dpm($wrapper->field_tags, 'wrapper->field_tags');
-  dpm($wrapper->field_tags->type(), 'wrapper->field_tags->type()');
-  dpm($wrapper->field_tags->label(), 'wrapper->field_tags->label()');
-  dpm($wrapper->field_tags->value(), 'wrapper->field_tags->value()');
-  dpm($wrapper->field_tags->raw(), 'wrapper->field_tags->raw()');
-  // field_tags is array od EntityDrupalWrapper objects
-  dpm($wrapper->field_tags[0], 'wrapper->field_tags[0]');
-  dpm($wrapper->field_tags[0]->getPropertyInfo(),
-    'wrapper->field_tags[0]->getPropertyInfo()');
-
-  dpm('field: field_file');
-  dpm($wrapper->value()->field_file, 'wrapper->value()->field_file');
-
-  // EntityStructureWrapper
-  dpm($wrapper->field_file, 'wrapper->field_file');
-  dpm($wrapper->field_file->type(), 'wrapper->field_file->type()');
-  dpm($wrapper->field_file->label(), 'wrapper->field_file->label()');
-  dpm($wrapper->field_file->value(), 'wrapper->field_file->value()');
-  dpm($wrapper->field_file->raw(), 'wrapper->field_file->raw()');
-
-  // Accessing field properties
-  dpm($wrapper->field_file->file, 'wrapper->field_file->file');
-  dpm($wrapper->field_file->file->type(), 'wrapper->field_file->file->type()');
-  dpm($wrapper->field_file->file->label(), 'wrapper->field_file->file->label()');
-  dpm($wrapper->field_file->file->value(), 'wrapper->field_file->file->value()');
-  dpm($wrapper->field_file->file->raw(), 'wrapper->field_file->file->raw()');
-  */
 
   // Standard mechanism for comparison.
   dpm(user_load($uid), 'user_load($uid)');
