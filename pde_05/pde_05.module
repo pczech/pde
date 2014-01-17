@@ -97,6 +97,8 @@ function pde_05_pcb_wrapper_read($type = NULL, $id = NULL) {
   }
 
   $wrapper = entity_metadata_wrapper($type, $id);
+  dpm($wrapper->getPropertyInfo(), 'wrapper->getPropertyInfo()');
+  dpm($wrapper->value(), 'wrapper->value()');
   return $output = '<pre>' . _pde_05_wrapper_read($type, $wrapper) . '</pre>';
 }
 
