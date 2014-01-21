@@ -1,0 +1,100 @@
+<?php
+
+/**
+ * @file
+ * Contains example code demonstrating topics covered in Chapter 6.
+ */
+
+// // @ignore sniffer_squiz_commenting_poststatementcomment_found:file
+// @ignore sniffer_commenting_inlinecomment_spacingafter:file
+// // @ignore sniffer_commenting_inlinecomment_invalidendchar:file
+
+module_load_include('inc', 'pde', 'includes/tools');
+
+/**
+ * Implements hook_menu().
+ */
+function pde_06_menu() {
+  pde_trace_funct();
+
+  $items = array();
+
+  $items['fci'] = array(
+    'title' => 'Field Collection',
+    'page callback' => 'pde_06_pcb_fci_info',
+    'access callback' => TRUE,
+  );
+
+  $items['fci/create'] = array(
+    'title' => 'Create',
+    'page callback' => 'pde_06_pcb_fci_create',
+    'access callback' => TRUE,
+  );
+
+  return $items;
+}
+
+/**
+ * Page callback: Show info page.
+ */
+function pde_06_pcb_fci_info() {
+  pde_trace_funct();
+
+  return t('Select Field Collection Item entity action from menu.');
+}
+
+
+/**
+ * Page callback: Create.
+ */
+function pde_06_pcb_fci_create($op = 'en') {
+  pde_trace_funct();
+
+  $funct = '_pde_06_fci_create_' . $op;
+  $funct();
+
+  return t('Done');
+}
+
+
+/**
+ * Command: create a field collection item entity.
+ *
+ * In order to create the entity, the field collection field shall be available
+ * as it embeds the entity. Create the field first (using UI). The field is
+ * treated as bundle of the field colletion item entity.
+ *
+ *  Add also otherfields to the field colletion item (using UI). The attached
+ *  fields are not visible in the created object, as they are empty, however
+ *  they can be added to the object (or defined in $data).
+ */
+function _pde_06_fci_create_en() {
+  $data = array(
+    'field_name' => 'field_employee',
+  );
+
+  // Object of class FieldCollectionItemEntity.
+  $entity = entity_create('field_collection_item', $data);
+  // field_
+  dpm($entity, 'entity');
+  dpm(entity_get_property_info());
+}
+
+
+/**
+ * Command: create a field collection item entity via wrapper.
+ *
+ * See _pde_06_fci_create_en().
+ */
+function _pde_06_fci_create_wr() {
+  $data = array(
+    'field_name' => 'field_employee',
+  );
+
+  $entity = entity_create('field_collection_item', $data);
+  $wrapper = entity_metadata_wrapper('field_collection_item', $entity);
+  dpm($entity, 'entity');
+  dpm($wrapper, 'wrapper');
+  dpm($wrapper->getPropertyInfo(), 'wrapper->getPropertyInfo()');
+  dpm($wrapper->value(), 'wrapper->value()');
+}

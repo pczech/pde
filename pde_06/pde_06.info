@@ -1,0 +1,7 @@
+name = Chapter 6
+description = Contains example code demonstrating topics covered in Chapter 6.
+package = Programming Drupal Entities
+core = 7.x
+#dependencies[] = entity
+dependencies[] = field_collection
+version = 7.x-1.0
