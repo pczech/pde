@@ -61,10 +61,10 @@ function pde_06_pcb_fci_create($op = 'en') {
  * Command: create a field collection item entity.
  *
  * In order to create the entity, the field collection field shall be available
- * as it embeds the entity. Create the field first (using UI). The field is
- * treated as bundle of the field colletion item entity.
+ * because it embeds the entity. Create the field first (using UI). The field
+ * is treated as a bundle of the field collection item entity.
  *
- *  Add also otherfields to the field colletion item (using UI). The attached
+ *  Add also other fields to the field colletion item (using UI). The attached
  *  fields are not visible in the created object, as they are empty, however
  *  they can be added to the object (or defined in $data).
  */
@@ -75,9 +75,13 @@ function _pde_06_fci_create_en() {
 
   // Object of class FieldCollectionItemEntity.
   $entity = entity_create('field_collection_item', $data);
-  // field_
+  $entity->field_surname[LANGUAGE_NONE][0]['value'] = 'Smith';
   dpm($entity, 'entity');
   dpm(entity_get_property_info());
+  $wrapper = entity_metadata_wrapper('field_collection_item', $entity);
+  dpm($wrapper, 'wrapper');
+  dpm($wrapper->getPropertyInfo(), 'wrapper->getPropertyInfo()');
+  dpm($wrapper->value(), 'wrapper->value()');
 }
 
 
@@ -93,8 +97,12 @@ function _pde_06_fci_create_wr() {
 
   $entity = entity_create('field_collection_item', $data);
   $wrapper = entity_metadata_wrapper('field_collection_item', $entity);
+  $wrapper->field_surname = 'Smith';
+  $wrapper->field_test = 'test';
   dpm($entity, 'entity');
   dpm($wrapper, 'wrapper');
   dpm($wrapper->getPropertyInfo(), 'wrapper->getPropertyInfo()');
   dpm($wrapper->value(), 'wrapper->value()');
+  dpm($wrapper->field_surname->value(), 'wrapper->field_surname->value()');
+
 }
