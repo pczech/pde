@@ -29,6 +29,14 @@ function pde_06_menu() {
     'title' => 'Create',
     'page callback' => 'pde_06_pcb_fci_create',
     'access callback' => TRUE,
+    'weight' => 1,
+  );
+
+  $items['fci/attach'] = array(
+    'title' => 'Attach',
+    'page callback' => 'pde_06_pcb_fci_attach',
+    'access callback' => TRUE,
+    'weight' => 2,
   );
 
   return $items;
@@ -58,15 +66,25 @@ function pde_06_pcb_fci_create($op = 'en') {
 
 
 /**
+ * Page callback: Attach.
+ */
+function pde_06_pcb_fci_attach($nid = 1) {
+  pde_trace_funct();
+
+  _pde_06_fci_attach($nid);
+
+  return t('Done');
+}
+
+
+/**
  * Command: create a field collection item entity.
  *
  * In order to create the entity, the field collection field shall be available
- * because it embeds the entity. Create the field first (using UI). The field
- * is treated as a bundle of the field collection item entity.
- *
- *  Add also other fields to the field colletion item (using UI). The attached
- *  fields are not visible in the created object, as they are empty, however
- *  they can be added to the object (or defined in $data).
+ * because it embeds the entity. Create the field_employee first (using UI).
+ * The field is treated as a bundle of the field collection item entity. Add
+ * also other fields to the field colletion item (using UI): field_surname,
+ * field_salary.
  */
 function _pde_06_fci_create_en() {
   $data = array(
@@ -75,13 +93,33 @@ function _pde_06_fci_create_en() {
 
   // Object of class FieldCollectionItemEntity.
   $entity = entity_create('field_collection_item', $data);
-  $entity->field_surname[LANGUAGE_NONE][0]['value'] = 'Smith';
-  dpm($entity, 'entity');
-  dpm(entity_get_property_info());
-  $wrapper = entity_metadata_wrapper('field_collection_item', $entity);
-  dpm($wrapper, 'wrapper');
-  dpm($wrapper->getPropertyInfo(), 'wrapper->getPropertyInfo()');
-  dpm($wrapper->value(), 'wrapper->value()');
+
+  // The attached fields are not visible in the newly created object if they
+  // are empty.
+  _pde_06_fci_dump($entity);
+
+
+  // The attached fields can be added to the entity object.
+  dpm('FILLING fields with data...');
+  $entity->field_surname[LANGUAGE_NONE][0]['value'] = 'Lampley';
+  $entity->field_salary[LANGUAGE_NONE][0]['value'] = 200;
+  $entity->field_undefined[LANGUAGE_NONE][0]['value'] = 'Xfield not availableX';
+  _pde_06_fci_dump($entity);
+
+  dpm('ENTITY 2');
+  $field_surname[LANGUAGE_NONE][0]['value'] = 'Lampley';
+  $field_salary[LANGUAGE_NONE][0]['value'] = 200;
+
+  $data = array(
+    'field_name' => 'field_employee',
+    'field_surname' => $field_surname,
+    'field_salary' => $field_salary,
+  );
+
+  $entity = entity_create('field_collection_item', $data);
+
+  // The attached fields are visible as the entity object properties.
+  _pde_06_fci_dump($entity);
 }
 
 
@@ -95,14 +133,66 @@ function _pde_06_fci_create_wr() {
     'field_name' => 'field_employee',
   );
 
+  // For the new created object, the attached fields are not available (as
+  // empty properties of the object).
   $entity = entity_create('field_collection_item', $data);
+  _pde_06_fci_dump($entity);
+
+  // The attached fields are not visible in the newly created object if they
+  // are empty.
+
+  // The attached fields can be filled via wrapper.
+  dpm('FILLING fields with data...');
   $wrapper = entity_metadata_wrapper('field_collection_item', $entity);
   $wrapper->field_surname = 'Smith';
-  $wrapper->field_test = 'test';
-  dpm($entity, 'entity');
+  $wrapper->field_salary = 100;
+  // Only attached fields are accessible.
+  // $wrapper->field_undefined = 'Xfield not availableX';
+
+  _pde_06_fci_dump($entity);
+}
+
+
+/**
+ * Command: attach a field collection item to a node.
+ */
+function _pde_06_fci_attach($nid) {
+  $data = array(
+    'field_name' => 'field_employee',
+  );
+
+  $employee = entity_create('field_collection_item', $data);
+  $wrapper = entity_metadata_wrapper('field_collection_item', $employee);
+
+  $wrapper->field_surname = 'Brown';
+  $wrapper->field_salary = '300';
+
+  $node = node_load($nid);
+  $employee->setHostEntity('node', $node);
+  dpm($node, 'node');
+  dpm($employee, 'employee');
+}
+
+
+/**
+ * Dump entity data using wrapper.
+ */
+function _pde_06_fci_dump($data) {
+  $wrapper = entity_metadata_wrapper('field_collection_item', $data);
+
+  dpm($data, 'data (entity/eid)');
   dpm($wrapper, 'wrapper');
+  dpm(entity_get_property_info(), 'entity_get_property_info()');
   dpm($wrapper->getPropertyInfo(), 'wrapper->getPropertyInfo()');
+  dpm($wrapper->field_surname->info(), 'wrapper->field_surname->info()');
+  dpm($wrapper->field_salary->info(), 'wrapper->field_salary->info()');
+  // dpm($wrapper->field_undefined->info(), 'wrapper->field_undefined->info()');
+
+  // Although field_undefined is the property of the entity object, it can not
+  // be accessed by $wrapper->field_undefined (it is not available in
+  // property info).
   dpm($wrapper->value(), 'wrapper->value()');
   dpm($wrapper->field_surname->value(), 'wrapper->field_surname->value()');
-
+  dpm($wrapper->field_salary->value(), 'wrapper->field_salary->value()');
+  // dpm($wrapper->field_undefined->value(), 'wrapper->field_undefined->value()');
 }
