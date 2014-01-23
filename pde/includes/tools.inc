@@ -15,9 +15,3 @@ function pde_trace_funct() {
     dpm($trace[1]['function']);
   }
 }
-
-
-function pde_dpm($data, $info) {
-  dpm($info . ':');
-  dpm($data);
-}
