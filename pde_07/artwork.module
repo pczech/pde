@@ -1,0 +1,282 @@
+<?php
+
+/**
+ * @file
+ * Play with Entities
+ *
+ * Creates entity type 'Artwork'
+ */
+
+// @ignore sniffer_commenting_inlinecomment_spacingafter:file
+
+
+include_once DRUPAL_ROOT . '/sites/all/modules/det/include/tools.inc';
+include_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'artwork') . '/artwork.types.inc';
+
+
+/**
+ * Implements hook_entity_info().
+ *
+ * Called on module install or 'page and else cache' clear.
+ */
+function artwork_entity_info() {
+  det_trace_funct();
+
+  $entity['artwork'] = array(
+    'label' => t('Artwork'),
+    'controller class' => 'ArtworkController',
+    'base table' => 'artwork',
+    'revision table' => 'artwork_revision',
+    // Defaults to TRUE so not needed to be specified 'static cache' => TRUE,
+    'uri callback' => 'artwork_callback_uri',
+    'fieldable' => TRUE,
+    'entity keys' => array(
+      'id' => 'aid',
+      'revision' => 'vid',
+      'bundle' => 'type',
+      'label' => 'title',
+    ),
+    'bundle keys' => array(
+      'bundle' => 'type',
+    ),
+    'bundles' => array(),
+    'view modes' => array(
+      'full' => array(
+        'label' => t('Artwork Full content'),
+        'custom settings' => FALSE,
+      ),
+      'teaser' => array(
+        'label' => t('Artwork Teaser'),
+        'custom settings' => FALSE,
+      ),
+    ),
+  );
+
+  foreach (_artwork_types() as $type => $info) {
+    $entity['artwork']['bundles'][$type] = array(
+      'label' => $info->name,
+      'admin' => array(
+        'path' => 'admin/structure/artworks/manage/%artwork_type',
+        'bundle argument' => 4,
+        'real path' => 'admin/structure/artworks/manage/' .
+        str_replace('_', '-', $type),
+        'access arguments' => array('administer artworks'),
+      ),
+    );
+  }
+
+  // dpm($entity);
+  return $entity;
+}
+
+
+/**
+ * Implements hook_menu().
+ */
+function artwork_menu() {
+  det_trace_funct();
+
+  $items = array();
+
+  $items['admin/structure/artworks'] = array(
+    'title' => 'Artworks',
+    'description' => 'Manage artworks.',
+    'page callback' => 'artwork_pcb_overview_types',
+    'access arguments' => array('administer artworks'),
+    'file' => 'artwork.pages.inc',
+  );
+
+  // This uses auto-loader wildcard! It doesn't add menu links to menu tree.
+  // Compare with artwork/add menu, where the links in menu tree are created.
+  $items['admin/structure/artworks/manage/%artwork_type'] = array(
+    // 'title' => 'Manage artwork type',
+    'title callback' => 'artwork_tcb_artwork_type',
+    'title arguments' => array(4),
+    'page callback' => 'artwork_pcb_manage_types',
+    'page arguments' => array(4),
+    'access arguments' => array('administer artworks'),
+    'file' => 'artwork.pages.inc',
+  );
+
+  $items['admin/structure/artworks/manage/%artwork_type/view'] = array(
+    'title' => 'View',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+  );
+
+  $items['artwork/add'] = array(
+    'title' => 'Add new artwork',
+    'page callback' => 'artwork_pcb_add_page',
+    'access arguments' => array('create artworks'),
+    'file' => 'artwork.pages.inc',
+    'weight' => 1,
+    'menu_name' => 'management',
+  );
+
+  foreach (_artwork_types() as $type) {
+    $type_url = str_replace('_', '-', $type->type);
+    $items['artwork/add/' . $type_url] = array(
+      'title' => $type->name,
+      'title callback' => 'check_plain',
+      'page callback' => 'artwork_pcb_add',
+      'page arguments' => array(2),
+      'access arguments' => array('create artworks'),
+      'file' => 'artwork.pages.inc',
+      'description' => $type->description,
+    );
+  }
+
+  // In order to make the tabs View, Edit visible, you should add and set
+  // 'access arguments' parameter for the tabs.
+  $items['artwork/%artwork_id'] = array(
+    'title callback' => 'artwork_tcb_artwork_title',
+    // The argument 1 is $artwork object returned by auto-loader wildcard.
+    'title arguments' => array(1),
+    'page callback' => 'artwork_pcb_view',
+    'page arguments' => array(1),
+    'access arguments' => array('view artworks'),
+    'type' => MENU_CALLBACK,
+    'file' => 'artwork.pages.inc',
+  );
+
+  $items['artwork/%artwork_id/view'] = array(
+    'title' => 'View',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'weight' => -10,
+  );
+
+  $items['artwork/%artwork_id/edit'] = array(
+    'title' => 'Edit',
+    'page callback' => 'artwork_pcb_edit',
+    'page arguments' => array(1),
+    'access arguments' => array('update artworks'),
+    'type' => MENU_LOCAL_TASK,
+    'context' => MENU_CONTEXT_PAGE | MENU_CONTEXT_INLINE,
+    'weight' => 0,
+    'file' => 'artwork.pages.inc',
+  );
+
+  $items['artwork/%artwork_id/delete'] = array(
+    'title' => 'Delete',
+    'page callback' => 'drupal_get_form',
+    // 2nd argument for drupal_get_form is $artwork object returned by
+    // artwork_id_load()
+    'page arguments' => array('artwork_form_any_delete_cfm', 1),
+    'access arguments' => array('delete artworks'),
+    'type' => MENU_LOCAL_TASK,
+    'context' => MENU_CONTEXT_INLINE,
+    'weight' => 0,
+    'file' => 'artwork.pages.inc',
+  );
+
+  return $items;
+}
+
+
+/**
+ * Implements hook_forms().
+ *
+ * It is necessary to clean up the cache to activate the hook.
+ */
+function artwork_forms($form_id, $args) {
+  det_trace_funct();
+  // dpm($form_id);
+  // drupal_get_form is called with extra parameter $artwork object, which is
+  // passed to hook_forms in $args.
+  // dpm($args);
+
+  $forms = array();
+  if ($types = _artwork_types()) {
+    foreach (array_keys($types) as $type) {
+      // Warning: possible name collision with artwork bundle named 'any'
+      $forms['artwork_form_' . $type]['callback'] = 'artwork_form_any';
+    }
+  }
+
+  return $forms;
+}
+
+
+/**
+ * Auto-Loader Wildcard load function for %artwork_type.
+ */
+function artwork_type_load($type) {
+  // det_trace_funct();
+
+  $types = _artwork_types();
+  $type = str_replace('-', '_', $type);
+  return isset($types[$type]) ? $types[$type] : FALSE;
+}
+
+
+/**
+ * Auto-Loader Wildcard load function for %artwork_id.
+ *
+ * It returns artwork object, that is used then as parameter by
+ * 'title callback' and 'page callback'.
+ */
+function artwork_id_load($aid) {
+  // det_trace_funct();
+  // dpm($aid);
+
+  return _artwork_load($aid);
+}
+
+
+/**
+ * Artworks management page title callback.
+ */
+function artwork_tcb_artwork_type($type) {
+  // det_trace_funct();
+
+  return t('Manage @type', array('@type' => $type->name));
+}
+
+
+/**
+ * Artwork page title callback.
+ */
+function artwork_tcb_artwork_title($artwork) {
+  // det_trace_funct();
+  // dpm($artwork);
+
+  return $artwork->title;
+}
+
+
+/**
+ * Implements callback_entity_info_uri().
+ */
+function artwork_callback_uri($artwork) {
+  // det_trace_funct();
+  // dpm($artwork);
+
+  return array(
+    'path' => 'artwork/' . $artwork->aid,
+  );
+}
+
+/**
+ * Load artwork entity record.
+ */
+function _artwork_load($aid = NULL) {
+  $aids = isset($aid) ? array($aid) : FALSE;
+  // @TODO use EntityFieldQuery instead of $conditions
+  $artworks = entity_load('artwork', $aids);
+  return $artworks ? reset($artworks) : FALSE;
+}
+
+
+/**
+ * Save artwork entity record.
+ */
+function _artwork_save($artwork) {
+  entity_get_controller('artwork')->save($artwork);
+}
+
+
+/**
+ * Delete artwork entity record.
+ */
+function _artwork_delete($aid) {
+  entity_get_controller('artwork')->delete($aid);
+}

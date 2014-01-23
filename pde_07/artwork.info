@@ -1,0 +1,7 @@
+name = Chapter 7
+description = Contains example code demonstrating topics covered in Chapter 7.
+package = Programming Drupal Entities
+core = 7.x
+files[] = artwork.controller.inc
+dependencies[] = entity
+version = 7.x-1.0
