@@ -8,8 +8,7 @@
 // @ignore sniffer_commenting_inlinecomment_spacingafter:file
 
 
-include_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'artwork') . '/artwork.types.inc';
-
+module_load_include('inc', 'artwork', 'artwork.types');
 
 /**
  * Implements hook_schema().
@@ -102,16 +101,80 @@ function artwork_schema() {
     ),
   );
 
+  $schema['artwork_type'] = array(
+    'description' => 'Stores information about all defined artwork types.',
+    'fields' => array(
+      'id' => array(
+        'description' => 'The primary identifier for an {artwork_type}.',
+        'type' => 'serial',
+        'not null' => TRUE,
+      ),
+      'type' => array(
+        'description' => 'The machine-readable name of this {artwork_type}.',
+        'type' => 'varchar',
+        'length' => 32,
+        'not null' => TRUE,
+      ),
+      'label' => array(
+        'description' => 'The human-readable name of this {artwork_type}.',
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE,
+      ),
+      'description' => array(
+        'description' => 'The description of this {artwork_type}.',
+        'type' => 'varchar',
+        'length' => 255,
+      ),
+    ),
+
+    'primary key' => array('id'),
+    'unique keys' => array(
+      'type' => array('type'),
+    ),
+  );
+
   return $schema;
+}
+
+
+/**
+ * Implements hook_install().
+ */
+function artwork_install() {
+
+  $values = array(
+    array(
+      'type' => 'painting',
+      'label' => 'Painting',
+      'description' => 'A picture made with paint.',
+    ),
+    array(
+      'type' => 'sculpture',
+      'label' => 'Sculpture',
+      'description' => 'A carving made out of stone or wood.',
+    ),
+  );
+
+  $db_query = db_insert('artwork_type')
+    ->fields(array('type', 'label', 'description'));
+
+  foreach ($values as $record) {
+    $db_query->values($record);
+  }
+
+  $db_query->execute();
 }
 
 
 /**
  * Implements hook_uninstall().
  */
+/*
 function artwork_uninstall() {
   // Clear fields attached to artwork entities.
   foreach (array_keys(_artwork_types()) as $type) {
     field_attach_delete_bundle('artwork', $type);
   }
 }
+*/

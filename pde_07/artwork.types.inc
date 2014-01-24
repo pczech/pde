@@ -12,8 +12,9 @@
  * Define bundles of artwork entity.
  */
 function _artwork_types() {
-  // det_trace_funct();
+  // pde_trace_funct();
 
+/*
   $types = &drupal_static(__FUNCTION__);
 
   if (empty($types)) {
@@ -31,5 +32,13 @@ function _artwork_types() {
   }
 
   // dpm($types);
+  return $types;
+  */
+
+  $types = db_select('artwork_type', 'a')
+    ->fields('a')
+    ->execute()
+    ->fetchAllAssoc('type');
+
   return $types;
 }

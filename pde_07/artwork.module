@@ -10,8 +10,8 @@
 // @ignore sniffer_commenting_inlinecomment_spacingafter:file
 
 
-include_once DRUPAL_ROOT . '/sites/all/modules/det/include/tools.inc';
-include_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'artwork') . '/artwork.types.inc';
+module_load_include('inc', 'pde', 'includes/tools');
+module_load_include('inc', 'artwork', 'artwork.types');
 
 
 /**
@@ -20,15 +20,17 @@ include_once DRUPAL_ROOT . '/' . drupal_get_path('module', 'artwork') . '/artwor
  * Called on module install or 'page and else cache' clear.
  */
 function artwork_entity_info() {
-  det_trace_funct();
+  pde_trace_funct();
 
   $entity['artwork'] = array(
     'label' => t('Artwork'),
-    'controller class' => 'ArtworkController',
+    'plural label' => t('Artworks'),
+    'entity class' => 'Entity',
+    'controller class' => 'EntityAPIController',
     'base table' => 'artwork',
     'revision table' => 'artwork_revision',
     // Defaults to TRUE so not needed to be specified 'static cache' => TRUE,
-    'uri callback' => 'artwork_callback_uri',
+    //'uri callback' => 'artwork_callback_uri',
     'fieldable' => TRUE,
     'entity keys' => array(
       'id' => 'aid',
@@ -54,16 +56,43 @@ function artwork_entity_info() {
 
   foreach (_artwork_types() as $type => $info) {
     $entity['artwork']['bundles'][$type] = array(
-      'label' => $info->name,
+      'label' => $info->label,
       'admin' => array(
         'path' => 'admin/structure/artworks/manage/%artwork_type',
         'bundle argument' => 4,
         'real path' => 'admin/structure/artworks/manage/' .
-        str_replace('_', '-', $type),
+          str_replace('_', '-', $type),
         'access arguments' => array('administer artworks'),
       ),
     );
   }
+
+  $entity['artwork_type'] = array(
+    'label' => t('Artwork type'),
+    'plural label' => t('Artwork types'),
+    'description' => t('Artwork types for Artwork module.'),
+    'entity class' => 'Entity',
+    'controller class' => 'EntityAPIController',
+    'base table' => 'artwork_type',
+    // Defaults to TRUE so not needed to be specified 'static cache' => TRUE,
+    //'uri callback' => 'artwork_callback_uri',
+    'fieldable' => FALSE,
+    'entity keys' => array(
+      'id' => 'id',
+      'name' => 'type',
+      'label' => 'label',
+    ),
+    'bundle of' => 'artwork',
+    'bundle keys' => array(
+      'bundle' => 'type',
+    ),
+    'access callback' => 'artwork_access',
+    // Enable the entity API's admin UI.
+    'admin ui' => array(
+      'path' => 'admin/structure/artworks',
+      'controller class' => 'EntityDefaultUIController',
+    ),
+  );
 
   // dpm($entity);
   return $entity;
@@ -71,10 +100,19 @@ function artwork_entity_info() {
 
 
 /**
+ * Access callback for the entity API.
+ */
+function artwork_access($op, $type = NULL, $account = NULL) {
+  return user_access('administer artworks', $account);
+}
+
+
+/**
  * Implements hook_menu().
  */
+/*
 function artwork_menu() {
-  det_trace_funct();
+  pde_trace_funct();
 
   $items = array();
 
@@ -170,6 +208,7 @@ function artwork_menu() {
 
   return $items;
 }
+*/
 
 
 /**
@@ -177,8 +216,9 @@ function artwork_menu() {
  *
  * It is necessary to clean up the cache to activate the hook.
  */
+/*
 function artwork_forms($form_id, $args) {
-  det_trace_funct();
+  pde_trace_funct();
   // dpm($form_id);
   // drupal_get_form is called with extra parameter $artwork object, which is
   // passed to hook_forms in $args.
@@ -194,13 +234,14 @@ function artwork_forms($form_id, $args) {
 
   return $forms;
 }
+*/
 
 
 /**
  * Auto-Loader Wildcard load function for %artwork_type.
  */
 function artwork_type_load($type) {
-  // det_trace_funct();
+  // pde_trace_funct();
 
   $types = _artwork_types();
   $type = str_replace('-', '_', $type);
@@ -214,69 +255,82 @@ function artwork_type_load($type) {
  * It returns artwork object, that is used then as parameter by
  * 'title callback' and 'page callback'.
  */
+/*
 function artwork_id_load($aid) {
-  // det_trace_funct();
+  // pde_trace_funct();
   // dpm($aid);
 
   return _artwork_load($aid);
 }
+*/
 
 
 /**
  * Artworks management page title callback.
  */
+/*
 function artwork_tcb_artwork_type($type) {
-  // det_trace_funct();
+  // pde_trace_funct();
 
   return t('Manage @type', array('@type' => $type->name));
 }
+*/
 
 
 /**
  * Artwork page title callback.
  */
+/*
 function artwork_tcb_artwork_title($artwork) {
-  // det_trace_funct();
+  // pde_trace_funct();
   // dpm($artwork);
 
   return $artwork->title;
 }
+*/
 
 
 /**
  * Implements callback_entity_info_uri().
  */
+/*
 function artwork_callback_uri($artwork) {
-  // det_trace_funct();
+  // pde_trace_funct();
   // dpm($artwork);
 
   return array(
     'path' => 'artwork/' . $artwork->aid,
   );
 }
+*/
 
 /**
  * Load artwork entity record.
  */
+/*
 function _artwork_load($aid = NULL) {
   $aids = isset($aid) ? array($aid) : FALSE;
   // @TODO use EntityFieldQuery instead of $conditions
   $artworks = entity_load('artwork', $aids);
   return $artworks ? reset($artworks) : FALSE;
 }
-
+*/
 
 /**
  * Save artwork entity record.
  */
+/*
 function _artwork_save($artwork) {
   entity_get_controller('artwork')->save($artwork);
 }
+*/
 
 
 /**
  * Delete artwork entity record.
  */
+/*
 function _artwork_delete($aid) {
   entity_get_controller('artwork')->delete($aid);
 }
+*/

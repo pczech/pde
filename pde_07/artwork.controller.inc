@@ -13,10 +13,11 @@
  *
  * Extends the DrupalDefaultEntityController class.
  */
-class ArtworkController extends DrupalDefaultEntityController {
+// class ArtworkController extends DrupalDefaultEntityController {
   /**
    * Create empty artwork entity object.
    */
+  /*
   public function create($type = '') {
     return (object) array(
       'aid' => '',
@@ -24,12 +25,14 @@ class ArtworkController extends DrupalDefaultEntityController {
       'title' => '',
     );
   }
+  */
 
   /**
    * Save the artwork entity record.
    */
+  /*
   public function save($artwork) {
-    det_trace_funct();
+    pde_trace_funct();
     // dpm($artwork);
 
     $transaction = db_transaction();
@@ -143,6 +146,7 @@ class ArtworkController extends DrupalDefaultEntityController {
       return FALSE;
     }
   }
+  */
 
   /**
    * Assign the new artwork revision to artwork record in DB.
@@ -150,18 +154,21 @@ class ArtworkController extends DrupalDefaultEntityController {
    * Revision ID (vid) must be present before handling attached fields as
    * thay as attached to given revision.
    */
+  /*
   protected function dbUpdateArtworkVid($artwork) {
     db_update('artwork')
       ->fields(array('vid' => $artwork->vid))
       ->condition('aid', $artwork->aid)
       ->execute();
   }
+  */
 
   /**
    * Delete the artwork entity record.
    */
+  /*
   public function delete($aid) {
-    det_trace_funct();
+    pde_trace_funct();
 
     if (empty($aid)) {
       // Nothing to delete.
@@ -203,4 +210,5 @@ class ArtworkController extends DrupalDefaultEntityController {
       return FALSE;
     }
   }
-}
+  */
+//}

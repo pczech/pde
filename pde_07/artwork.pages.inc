@@ -11,8 +11,9 @@
 /**
  * Overview types page callback.
  */
+/*
 function artwork_pcb_overview_types() {
-  det_trace_funct();
+  pde_trace_funct();
 
   foreach (_artwork_types() as $type => $info) {
     $type_url = str_replace('_', '-', $type);
@@ -22,23 +23,26 @@ function artwork_pcb_overview_types() {
 
   return theme('item_list', array('items' => $items));
 }
+*/
 
 
 /**
  * Manage types page callback.
  */
+/*
 function artwork_pcb_manage_types($artwork_type) {
-  det_trace_funct();
+  pde_trace_funct();
 
   return $artwork_type->name . ': ' . $artwork_type->description;
 }
-
+*/
 
 /**
  * Add page callback.
  */
+/*
 function artwork_pcb_add_page() {
-  det_trace_funct();
+  pde_trace_funct();
 
   $item = menu_get_item();
   $links = system_admin_menu_block($item);
@@ -53,13 +57,14 @@ function artwork_pcb_add_page() {
   // dpm($items);
   return theme('item_list', array('items' => $items));
 }
-
+*/
 
 /**
  * Add artwork callback.
  */
+/*
 function artwork_pcb_add($type) {
-  det_trace_funct();
+  pde_trace_funct();
 
   $type = isset($type) ? str_replace('-', '_', $type) : NULL;
   $types = _artwork_types();
@@ -82,13 +87,14 @@ function artwork_pcb_add($type) {
   // the form. If no such function is found, Drupal calls hook_forms.
   return drupal_get_form('artwork_form_' . $type, $artwork);
 }
-
+*/
 
 /**
  * View artwork callback.
  */
+/*
 function artwork_pcb_view($artwork, $view_mode = 'full') {
-  det_trace_funct();
+  pde_trace_funct();
   // dpm($artwork);
 
   if ($view_mode == 'teaser') {
@@ -111,13 +117,14 @@ function artwork_pcb_view($artwork, $view_mode = 'full') {
   // Create renderable array for the attached fields and return it.
   return field_attach_view('artwork', $artwork, $view_mode);
 }
-
+*/
 
 /**
  * Edit artwork callback.
  */
+/*
 function artwork_pcb_edit($artwork) {
-  det_trace_funct();
+  pde_trace_funct();
   // dpm($artwork);
 
   $types = _artwork_types();
@@ -127,13 +134,14 @@ function artwork_pcb_edit($artwork) {
 
   return drupal_get_form('artwork_form_' . $artwork->type, $artwork);
 }
-
+*/
 
 /**
  * Creates form for "artwork_$type_form".
  */
+/*
 function artwork_form_any($form, &$form_state, $artwork) {
-  det_trace_funct();
+  pde_trace_funct();
   // dpm($form);
   // dpm($form_state);
   // dpm($artwork);
@@ -192,7 +200,7 @@ function artwork_form_any($form, &$form_state, $artwork) {
 
   return $form;
 }
-
+*/
 
 /**
  * For test.
@@ -200,9 +208,11 @@ function artwork_form_any($form, &$form_state, $artwork) {
  * It is called if custom (in $form['#validate']) validation function is not
  * specified. See $form['#validate'][] = 'artwork_form_any_validate'.
  */
+/*
 function artwork_form_painting_validate() {
-  det_trace_funct();
+  pde_trace_funct();
 }
+*/
 
 
 /**
@@ -211,16 +221,19 @@ function artwork_form_painting_validate() {
  * It is called if custom (in $form['#validate']) validation function is not
  * specified. See $form['#validate'][] = 'artwork_form_validate'.
  */
+/*
 function artwork_form_sculpture_validate() {
-  det_trace_funct();
+  pde_trace_funct();
 }
+*/
 
 
 /**
  * Artwork form validation function.
  */
+/*
 function artwork_form_any_validate($form, &$form_state) {
-  det_trace_funct();
+  pde_trace_funct();
   // dpm($form);
   // dpm($form_state);
 
@@ -236,7 +249,7 @@ function artwork_form_any_validate($form, &$form_state) {
   field_attach_form_validate('artwork', $artwork, $form, $form_state);
   // dpm($artwork);
 }
-
+*/
 
 /**
  * For test.
@@ -244,9 +257,11 @@ function artwork_form_any_validate($form, &$form_state) {
  * It is called if custom (in $form['buttons']['save']['#submit']) submit
  * function is not specified. See buttons definition in the form.
  */
+/*
 function artwork_form_painting_submit() {
-  det_trace_funct();
+  pde_trace_funct();
 }
+*/
 
 
 /**
@@ -255,16 +270,19 @@ function artwork_form_painting_submit() {
  * It is called if custom (in $form['buttons']['save']['#submit']) submit
  * function is not specified. See buttons definition in the form.
  */
+/*
 function artwork_form_sculpture_submit() {
-  det_trace_funct();
+  pde_trace_funct();
 }
+*/
 
 
 /**
  * Submit function for 'save' button.
  */
+/*
 function artwork_form_any_submit_save($form, &$form_state) {
-  det_trace_funct();
+  pde_trace_funct();
   // dpm($form);
   // dpm($form_state);
 
@@ -287,13 +305,14 @@ function artwork_form_any_submit_save($form, &$form_state) {
 
   $form_state['redirect'] = 'artwork/' . $artwork->aid;
 }
-
+*/
 
 /**
  * Submit function for 'delete' button.
  */
+/*
 function artwork_form_any_submit_delete($form, &$form_state) {
-  det_trace_funct();
+  pde_trace_funct();
   // dpm($form);
   // dpm($form_state);
 
@@ -302,13 +321,15 @@ function artwork_form_any_submit_delete($form, &$form_state) {
   // Redirect to delete page.
   $form_state['redirect'] = 'artwork/' . $artwork->aid . '/delete';
 }
+*/
 
 
 /**
  * Artwork delete confirm form constructor.
  */
+/*
 function artwork_form_any_delete_cfm($form, &$form_state, $artwork) {
-  det_trace_funct();
+  pde_trace_funct();
 
   $form['aid'] = array(
     '#type' => 'value',
@@ -322,13 +343,15 @@ function artwork_form_any_delete_cfm($form, &$form_state, $artwork) {
   // dpm($form);
   return $form;
 }
+*/
 
 
 /**
  * Submit function for deleting 'confirm' button.
  */
+/*
 function artwork_form_any_delete_cfm_submit($form, &$form_state) {
-  det_trace_funct();
+  pde_trace_funct();
   // dpm($form);
   // dpm($form_state);
 
@@ -347,3 +370,4 @@ function artwork_form_any_delete_cfm_submit($form, &$form_state) {
   }
   $form_state['redirect'] = '<front>';
 }
+*/
