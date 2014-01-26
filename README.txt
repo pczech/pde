@@ -13,6 +13,9 @@ entity_load_unchanged
 entity_metadata_wrapper
 hook_entity_property_info_alter
 
+entity_ui_form_submit_build_entity
+entity_load_multiple_by_name
+
 
 Other
 -----

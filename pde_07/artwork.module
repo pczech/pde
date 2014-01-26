@@ -8,6 +8,8 @@
  */
 
 // @ignore sniffer_commenting_inlinecomment_spacingafter:file
+// @ignore comment_docblock_comment:file
+// @ignore comment_comment_indent:file
 
 
 module_load_include('inc', 'pde', 'includes/tools');
@@ -25,12 +27,16 @@ function artwork_entity_info() {
   $entity['artwork'] = array(
     'label' => t('Artwork'),
     'plural label' => t('Artworks'),
+    'description' => t('Available artworks.'),
     'entity class' => 'Entity',
     'controller class' => 'EntityAPIController',
     'base table' => 'artwork',
     'revision table' => 'artwork_revision',
     // Defaults to TRUE so not needed to be specified 'static cache' => TRUE,
-    //'uri callback' => 'artwork_callback_uri',
+    // ?'label callback' => 'entity_class_label',
+    // ?'uri callback' => 'entity_class_uri',
+    // ?'uri callback' => 'artwork_callback_uri',
+    // ?'module' => 'artwork',
     'fieldable' => TRUE,
     'entity keys' => array(
       'id' => 'aid',
@@ -54,14 +60,14 @@ function artwork_entity_info() {
     ),
   );
 
-  foreach (_artwork_types() as $type => $info) {
+  foreach (artwork_types_db() as $type => $info) {
     $entity['artwork']['bundles'][$type] = array(
       'label' => $info->label,
       'admin' => array(
         'path' => 'admin/structure/artworks/manage/%artwork_type',
         'bundle argument' => 4,
         'real path' => 'admin/structure/artworks/manage/' .
-          str_replace('_', '-', $type),
+        str_replace('_', '-', $type),
         'access arguments' => array('administer artworks'),
       ),
     );
@@ -72,24 +78,26 @@ function artwork_entity_info() {
     'plural label' => t('Artwork types'),
     'description' => t('Artwork types for Artwork module.'),
     'entity class' => 'Entity',
-    'controller class' => 'EntityAPIController',
+    // Important: EntityAPIControllerExportable shall be used to support
+    // 'admin ui' controller correctly.
+    'controller class' => 'EntityAPIControllerExportable',
     'base table' => 'artwork_type',
-    // Defaults to TRUE so not needed to be specified 'static cache' => TRUE,
-    //'uri callback' => 'artwork_callback_uri',
+    // ?'uri callback' => 'artwork_callback_uri',
     'fieldable' => FALSE,
+    'bundle of' => 'artwork',
     'entity keys' => array(
       'id' => 'id',
       'name' => 'type',
       'label' => 'label',
     ),
-    'bundle of' => 'artwork',
-    'bundle keys' => array(
-      'bundle' => 'type',
-    ),
+
     'access callback' => 'artwork_access',
+    // 'module' is required for artwork_type (don't know why).
+    'module' => 'artwork',
     // Enable the entity API's admin UI.
     'admin ui' => array(
       'path' => 'admin/structure/artworks',
+      'file' => 'artwork.admin.inc',
       'controller class' => 'EntityDefaultUIController',
     ),
   );
@@ -243,7 +251,7 @@ function artwork_forms($form_id, $args) {
 function artwork_type_load($type) {
   // pde_trace_funct();
 
-  $types = _artwork_types();
+  $types = artwork_types_eapi();
   $type = str_replace('-', '_', $type);
   return isset($types[$type]) ? $types[$type] : FALSE;
 }

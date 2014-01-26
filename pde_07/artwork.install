@@ -6,7 +6,8 @@
  */
 
 // @ignore sniffer_commenting_inlinecomment_spacingafter:file
-
+// @ignore comment_docblock_comment:file
+// @ignore comment_comment_indent:file
 
 module_load_include('inc', 'artwork', 'artwork.types');
 
@@ -142,7 +143,6 @@ function artwork_schema() {
  * Implements hook_install().
  */
 function artwork_install() {
-
   $values = array(
     array(
       'type' => 'painting',
@@ -170,11 +170,9 @@ function artwork_install() {
 /**
  * Implements hook_uninstall().
  */
-/*
 function artwork_uninstall() {
   // Clear fields attached to artwork entities.
-  foreach (array_keys(_artwork_types()) as $type) {
+  foreach (array_keys(artwork_types_db()) as $type) {
     field_attach_delete_bundle('artwork', $type);
   }
 }
-*/

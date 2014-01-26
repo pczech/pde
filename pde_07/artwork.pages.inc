@@ -6,6 +6,8 @@
  */
 
 // @ignore sniffer_commenting_inlinecomment_spacingafter:file
+// @ignore comment_docblock_comment:file
+// @ignore comment_comment_indent:file
 
 
 /**
